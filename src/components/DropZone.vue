@@ -1,5 +1,6 @@
 <template>
   <div class="dropzone"
+       ref="dropzone"
        @drop="onDrop"
        @dragover="handleDragOver">
     <div v-if="ids.length === 0">Drop here</div>
@@ -63,16 +64,22 @@
 </template>
 <script>
 import {
-  defineComponent, ref, onMounted, reactive, toRefs, watch,
+  defineComponent, ref, onMounted, reactive, toRefs, watch, onUnmounted,
 } from 'vue';
 import mineTypes from '@/utils/minetypes';
 import {
-  filesize, determineDragAndDropCapable,
+  filesize, determineDragAndDropCapable, uuidv4,
 } from '@/utils';
 import useDragAndDrop from '@/hooks/drag';
 import useThumbnail from '@/hooks/thumbnail';
 import useUploadQueue from '@/hooks/uploadQueue';
 import STATUS from '@/utils/status';
+
+// TODO - retry policy
+// TODO - change svg icon
+// TODO - upload file chuncked
+// TODO - accept file by size, maxfiles, accepted list
+// TODO - filter by accepetd type
 
 export default defineComponent({
   name: 'DropZone',
@@ -93,8 +100,36 @@ export default defineComponent({
       type: Number,
       default: 3,
     },
+    maxFiles: {
+      type: Number,
+      default: null,
+    },
+    hiddenInputContainer: {
+      default: 'body',
+    },
+    clickable: {
+      type: Boolean,
+      default: true,
+    },
   },
   setup(props) {
+    const dropzone = ref();
+    const getElement = function (el, name) {
+      let element;
+      if (typeof el === 'string') {
+        element = document.querySelector(el);
+      } else if (el.nodeType != null) {
+        element = el;
+      }
+      if (element == null) {
+        throw new Error(
+          `Invalid \`${name}\` option provided. Please provide a CSS selector or a plain HTML element.`,
+        );
+      }
+      return element;
+    };
+    let hiddenFileInput;
+    let clickableElements = [];
     const dragAndDropCapable = ref(false);
     // Watch on props
     const autoUpload = ref(props.uploadOnDrop);
@@ -144,11 +179,61 @@ export default defineComponent({
     } = useDragAndDrop({
       addFile,
     });
-
+    const triggerClickOnHiddenFileIput = () => {
+      hiddenFileInput.click();
+    };
     onMounted(() => {
       dragAndDropCapable.value = determineDragAndDropCapable();
-    });
 
+      if (props.clickable) {
+        clickableElements = [dropzone.value];
+
+        const setupHiddenFileInput = () => {
+          if (hiddenFileInput) {
+            hiddenFileInput.parentNode.removeChild(hiddenFileInput);
+          }
+          hiddenFileInput = document.createElement('input');
+          hiddenFileInput.setAttribute('type', 'file');
+          if (props.maxFiles === null || props.maxFiles > 1) {
+            hiddenFileInput.setAttribute('multiple', 'multiple');
+          }
+          // TODO - accepted files
+          // TODO - caputure
+          // Make sure that no one can tab in this input field.
+          hiddenFileInput.setAttribute('tabindex', '-1');
+          hiddenFileInput.style.visibility = 'hidden';
+          hiddenFileInput.style.position = 'absolute';
+          hiddenFileInput.style.top = '0';
+          hiddenFileInput.style.left = '0';
+          hiddenFileInput.style.height = '0';
+          hiddenFileInput.style.width = '0';
+          getElement(props.hiddenInputContainer, 'hiddenInputContainer')
+            .appendChild(hiddenFileInput);
+          hiddenFileInput.addEventListener('change', () => {
+            const { files } = hiddenFileInput;
+            files.forEach((file) => {
+              addFile(uuidv4(), file);
+            });
+            setupHiddenFileInput();
+          });
+        };
+        setupHiddenFileInput();
+        clickableElements.forEach((el) => {
+          el.addEventListener('click', triggerClickOnHiddenFileIput);
+        });
+      }
+    });
+    onUnmounted(() => {
+      // Remove all events
+      clickableElements.forEach((el) => {
+        el.removeEventListener('click', triggerClickOnHiddenFileIput);
+      });
+      // Delete the hidden input file
+      if (hiddenFileInput) {
+        hiddenFileInput.parentElement.removeChild(hiddenFileInput);
+        hiddenFileInput = null;
+      }
+    });
     const accepts = ref(
       [...mineTypes.data.filter((mineType) => mineType.ext && mineType.ext === 'pdf')
         .map((mediaType) => mediaType.mime_type),
@@ -174,6 +259,7 @@ export default defineComponent({
       removeFile,
       filesize,
       processQueue,
+      dropzone,
     };
   },
 });

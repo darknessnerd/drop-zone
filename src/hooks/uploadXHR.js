@@ -18,7 +18,7 @@ export default function useUploadXHR({ retryOnError, items }) {
       console.log('all uploaded');
     }
   };
-  const upload = (files, onFinish) => {
+  const upload = (files, onFinish, onError) => {
     const uploadId = uuidv4();
     console.log(`try to upload ${uploadId}`);
     const xhr = new XMLHttpRequest();
@@ -89,7 +89,8 @@ export default function useUploadXHR({ retryOnError, items }) {
         // eslint-disable-next-line no-param-reassign
           item.status = STATUS.ERROR;
         });
-      console.log(`xhr onerror: ${e}`);
+      console.error(`xhr onerror: ${e}`);
+      onError();
     };
     // Some browsers do not have the .upload property
     const progressObj = xhr.upload != null ? xhr.upload : xhr;

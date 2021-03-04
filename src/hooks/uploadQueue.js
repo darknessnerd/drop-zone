@@ -34,27 +34,23 @@ export default function useUploadQueue({
       console.debug('processQueue is empty');
       return;
     }
-
+    const triggerProcessQueue = () => {
+      if (autoUpload.value) {
+        processQueue();
+      }
+    };
     let i = currentProcessing;
-    console.warn(currentProcessing, parallelUpload.value);
     console.debug(`start to processQueue for ${parallelUpload.value - i}items`);
-    console.debug(autoUpload.value);
     if (multipleUpload.value) {
-      upload(queuedFiles.slice(0, parallelUpload.value - currentProcessing), () => {
-        if (autoUpload.value) {
-          processQueue();
-        }
-      });
+      upload(queuedFiles.slice(0, parallelUpload.value - currentProcessing),
+        triggerProcessQueue,
+        triggerProcessQueue);
     } else {
       while (i <= parallelUpload.value) {
         if (queuedFiles.length <= 0) {
           return;
         }
-        upload([queuedFiles.shift()], () => {
-          if (autoUpload.value) {
-            processQueue();
-          }
-        });
+        upload([queuedFiles.shift()], triggerProcessQueue, triggerProcessQueue);
         i += 1;
       }
     }
