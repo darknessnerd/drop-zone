@@ -9,6 +9,7 @@
   min-height: 64px;
   display: flex;
   flex-flow: row wrap;
+  z-index: 10;
 }
 .dropzone__preview:hover {
   z-index: 1000;
@@ -90,6 +91,13 @@
 .dropzone__preview-file > .dropzone-image {
   opacity: 1;
 }
+.dropzone-clickable {
+  cursor: pointer;
+  * {
+    cursor: default;
+  }
+}
+
 .dropzone__details {
   z-index: 20;
   position: absolute;
@@ -128,11 +136,13 @@
   width: 54px;
   height: 54px;
 }
-
-.dropzone--success > .dropzone__success-mark > svg {
+.dropzone--error > .dropzone__error-mark > i {
   display: block;
-  width: 54px;
-  height: 54px;
+  transform: scale(2) translateY(50%) translateX(50%);
+}
+.dropzone--success > .dropzone__success-mark > i {
+  display: block;
+  transform: scale(2) translateY(50%) translateX(50%);
 }
 .dropzone__progress {
   opacity: 1;
@@ -170,6 +180,63 @@
   color: #747474;
   opacity: 0.98;
   background-color: #FFFFFF;
+}
+.gg-check-o::after {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  left: 3px;
+  top: -1px;
+  width: 6px;
+  height: 10px;
+  border-color: currentColor;
+  border-width: 0 2px 2px 0;
+  border-style: solid;
+  transform-origin: bottom left;
+  transform: rotate(45deg)
+}
+.gg-check-o {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(var(--ggs,1));
+  width: 22px;
+  height: 22px;
+  border: 2px solid;
+  border-radius: 100px
+}
+.gg-danger {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(var(--ggs,1));
+  width: 20px;
+  height: 20px;
+  border: 2px solid;
+  border-radius: 40px
+}
+
+.gg-danger::after,
+.gg-danger::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  border-radius: 3px;
+  width: 2px;
+  background: currentColor;
+  left: 7px
+}
+
+.gg-danger::after {
+  top: 2px;
+  height: 8px
+}
+
+.gg-danger::before {
+  height: 2px;
+  bottom: 2px
 }
 .gg-check-o::after {
   content: "";
