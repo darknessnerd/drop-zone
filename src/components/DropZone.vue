@@ -1,5 +1,5 @@
 <template>
-  <div class="dropzone"
+  <form class="dropzone"
        ref="dropzone"
        @drop="onDrop"
        @dragover="handleDragOver">
@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </form>
   <button @click="processQueue">upload</button>
 </template>
 <script>
@@ -62,8 +62,9 @@ import useHiddenInputFile from '@/hooks/hiddenIpuntFile';
 
 // TODO - retry policy
 // TODO - upload file chuncked
-// TODO - accept file by size, maxfiles
 // TODO - disable
+// TODO - Understand capture
+// TODO - add slot for inputs to be sent with the request
 export default defineComponent({
   name: 'DropZone',
   props: {
@@ -108,27 +109,27 @@ export default defineComponent({
     const dropzone = ref();
     const dragAndDropCapable = ref(false);
     const accepts = reactive([]);
-    // Watch on props
-    // TODO - convert to reactive object config {}
-    const autoUpload = ref(props.uploadOnDrop);
-    const parallelUpload = ref(props.parallelUpload);
-    const multipleUpload = ref(props.multipleUpload);
-    const maxFiles = ref(props.maxFiles);
-    const hiddenInputContainer = ref(props.hiddenInputContainer);
-    const clickable = ref(props.clickable);
-    const acceptedFiles = ref(props.acceptedFiles);
+    // Dropbox reactive config
     const config = reactive({
+      maxFiles: props.maxFiles,
       maxFileSize: props.maxFileSize,
+      autoUpload: props.uploadOnDrop,
+      parallelUpload: props.parallelUpload,
+      multipleUpload: props.multipleUpload,
+      hiddenInputContainer: props.hiddenInputContainer,
+      clickable: props.clickable,
+      acceptedFiles: props.acceptedFiles,
+      retryOnError: props.retryOnError,
     });
     // Watch on props changes
     watch(() => props.maxFileSize, (val) => { config.maxFileSize = val; });
-    watch(() => props.acceptedFiles, (val) => { acceptedFiles.value = val; });
-    watch(() => props.maxFiles, (val) => { maxFiles.value = val; });
-    watch(() => props.hiddenInputContainer, (val) => { hiddenInputContainer.value = val; });
-    watch(() => props.clickable, (val) => { clickable.value = val; });
-    watch(() => props.uploadOnDrop, (val) => { autoUpload.value = val; });
-    watch(() => props.parallelUpload, (val) => { parallelUpload.value = val; });
-    watch(() => props.multipleUpload, (val) => { multipleUpload.value = val; });
+    watch(() => props.acceptedFiles, (val) => { config.acceptedFiles = val; });
+    watch(() => props.maxFiles, (val) => { config.maxFiles = val; });
+    watch(() => props.hiddenInputContainer, (val) => { config.hiddenInputContainer = val; });
+    watch(() => props.clickable, (val) => { config.clickable = val; });
+    watch(() => props.uploadOnDrop, (val) => { config.autoUpload = val; });
+    watch(() => props.parallelUpload, (val) => { config.parallelUpload = val; });
+    watch(() => props.retryOnError, (val) => { config.retryOnError = val; });
 
     const items = reactive({
       ids: [],
@@ -145,10 +146,7 @@ export default defineComponent({
       enqueueFile,
       processQueue,
     } = useUploadQueue({
-      retryOnError: props.retryOnError,
-      parallelUpload,
-      autoUpload,
-      multipleUpload,
+      config,
       items,
     });
 
@@ -212,6 +210,11 @@ export default defineComponent({
         console.warn(`ignored file: ${file.name}`);
         return;
       }
+      if (items.ids.length + 1 > config.maxFiles) {
+        // TODO ADD VISUAL EFFECT AND Emit some event
+        console.warn('Max file reached');
+        return;
+      }
       // Add the id
       items.ids.push(id);
       // eslint-disable-next-line no-param-reassign
@@ -233,9 +236,7 @@ export default defineComponent({
       addFile,
       accepts,
       dropzone,
-      maxFiles,
-      hiddenInputContainer,
-      clickable,
+      config,
     });
 
     // Drag and drop file feature

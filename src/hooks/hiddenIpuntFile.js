@@ -17,9 +17,7 @@ export default function useHiddenInputFile({
   addFile,
   accepts,
   dropzone,
-  maxFiles,
-  hiddenInputContainer,
-  clickable,
+  config,
 }) {
   let hiddenFileInput;
   let clickableElements = [];
@@ -34,7 +32,7 @@ export default function useHiddenInputFile({
     }
     hiddenFileInput = document.createElement('input');
     hiddenFileInput.setAttribute('type', 'file');
-    if (maxFiles.value === null || maxFiles.value > 1) {
+    if (config.maxFiles === null || config.maxFiles > 1) {
       hiddenFileInput.setAttribute('multiple', 'multiple');
     }
     if (accepts.length > 0) {
@@ -49,7 +47,7 @@ export default function useHiddenInputFile({
     hiddenFileInput.style.left = '0';
     hiddenFileInput.style.height = '0';
     hiddenFileInput.style.width = '0';
-    getElement(hiddenInputContainer.value, 'hiddenInputContainer')
+    getElement(config.hiddenInputContainer, 'hiddenInputContainer')
       .appendChild(hiddenFileInput);
     hiddenFileInput.addEventListener('change', () => {
       const { files } = hiddenFileInput;
@@ -61,7 +59,7 @@ export default function useHiddenInputFile({
   };
   const initHiddenFileInput = () => {
     console.debug('initHiddenFileInput');
-    if (clickable.value) {
+    if (config.clickable) {
       const message = getElement('.dropzone__message', 'dropzone__message');
       clickableElements = [dropzone.value];
       clickableElements.push(message);

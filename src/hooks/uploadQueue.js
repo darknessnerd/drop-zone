@@ -8,20 +8,17 @@ import STATUS from '@/utils/status';
  * @returns {{enqueueFile: enqueueFile, processQueue: (function(): (undefined))}}
  */
 export default function useUploadQueue({
-  retryOnError,
-  autoUpload,
-  parallelUpload,
-  multipleUpload,
+  config,
   items,
 }) {
   const processQueue = () => {
     const {
       upload,
-    } = useUploadXHR({ retryOnError, items });
+    } = useUploadXHR({ retryOnError: config.retryOnError, items });
     const currentProcessing = Object
       .values(items.all)
       .filter(((item) => item.status === STATUS.UPLOADING)).length;
-    if (currentProcessing >= parallelUpload.value) {
+    if (currentProcessing >= config.parallelUpload) {
       console.debug('max limit for parallel uploads reached');
       return;
     }
@@ -35,18 +32,18 @@ export default function useUploadQueue({
       return;
     }
     const triggerProcessQueue = () => {
-      if (autoUpload.value) {
+      if (config.autoUpload) {
         processQueue();
       }
     };
     let i = currentProcessing;
-    console.debug(`start to processQueue for ${parallelUpload.value - i}items`);
-    if (multipleUpload.value) {
-      upload(queuedFiles.slice(0, parallelUpload.value - currentProcessing),
+    console.debug(`start to processQueue for ${config.parallelUpload - i}items`);
+    if (config.multipleUpload) {
+      upload(queuedFiles.slice(0, config.parallelUpload - currentProcessing),
         triggerProcessQueue,
         triggerProcessQueue);
     } else {
-      while (i <= parallelUpload.value) {
+      while (i <= config.parallelUpload) {
         if (queuedFiles.length <= 0) {
           return;
         }
@@ -64,7 +61,7 @@ export default function useUploadQueue({
     const file = items.all[id];
     if (file.status === STATUS.ADDED && file.accepted === true) {
       file.status = STATUS.QUEUED;
-      if (autoUpload.value) {
+      if (config.autoUpload) {
         setTimeout(() => processQueue(), 0);
       }
     } else {

@@ -20,11 +20,12 @@ const Template = (args) => ({
   components: { DropZone },
   // The story's `args` need to be mapped into the template through the `setup()` method
   setup() {
-    const uploadOnDrop = ref(false);
+    const uploadOnDrop = ref(true);
     const parallelUpload = ref(1);
     const multipleUpload = ref(true);
+    const maxFiles = ref(10);
     return {
-      args, uploadOnDrop, multipleUpload, parallelUpload,
+      args, uploadOnDrop, multipleUpload, parallelUpload, maxFiles,
     };
   },
   // And then the `args` are bound to your component with `v-bind="args"`
@@ -40,11 +41,13 @@ DevStory.args = {
     + ':uploadOnDrop="uploadOnDrop" '
     + ':parallelUpload="Number(parallelUpload)" '
     + ':multipleUpload="multipleUpload" '
+    + ':maxFiles="Number(maxFiles)" '
     + ':acceptedFiles="[\'pdf\', \'image\', \'doc\']"'
     + '/>'
     + '<div> '
     + '<div> auto upload on drop: <input type="checkbox" v-model="uploadOnDrop"></div>'
     + '<div> parallel upload: <input type="number" v-model="parallelUpload"></div>'
     + '<div> multiple upload: <input type="checkbox" v-model="multipleUpload"></div>'
+    + '<div> maxFiles: <input type="number" v-model="maxFiles"></div>'
     + '</div>',
 };
