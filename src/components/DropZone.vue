@@ -3,7 +3,7 @@
        ref="dropzone"
        @drop="onDrop"
        @dragover="handleDragOver">
-    <div v-if="ids.length === 0">Drop here</div>
+    <div v-if="ids.length === 0" class="dropzone__message">Drop here</div>
     <div class="dropzone__preview"
          :class="{
             'dropzone__preview-file': !item.thumbnail,
@@ -16,7 +16,9 @@
          v-for="(item, itemId) in all"
          :key="itemId">
       <div class="dropzone-image" >
-        <img v-if="item.thumbnail" style="width:100%; height:auto;" :src="item.thumbnail">
+        <img v-if="item.thumbnail"
+             style="width:100%; height:auto;"
+             :src="item.thumbnail">
       </div>
       <div class="dropzone__progress">
         <progress class="dropzone__progress-bar"
@@ -50,18 +52,17 @@ import {
 } from 'vue';
 import mineTypes from '@/utils/minetypes';
 import {
-  filesize, determineDragAndDropCapable, uuidv4,
+  filesize, determineDragAndDropCapable,
 } from '@/utils';
 import useDragAndDrop from '@/hooks/drag';
 import useThumbnail from '@/hooks/thumbnail';
 import useUploadQueue from '@/hooks/uploadQueue';
 import STATUS from '@/utils/status';
+import useHiddenInputFile from '@/hooks/hiddenIpuntFile';
 
 // TODO - retry policy
-// TODO - change svg icon
 // TODO - upload file chuncked
-// TODO - accept file by size, maxfiles, accepted list
-// TODO - filter by accepetd type
+// TODO - accept file by size, maxfiles
 // TODO - disable
 export default defineComponent({
   name: 'DropZone',
@@ -86,6 +87,11 @@ export default defineComponent({
       type: Number,
       default: null,
     },
+    // Bytes value for the max upload size allowed
+    maxFileSize: {
+      type: Number,
+      default: 1000000,
+    },
     hiddenInputContainer: {
       default: 'body',
     },
@@ -93,42 +99,48 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    acceptedFiles: {
+      type: Array,
+      default: null,
+    },
   },
   setup(props) {
     const dropzone = ref();
-    const getElement = function (el, name) {
-      let element;
-      if (typeof el === 'string') {
-        element = document.querySelector(el);
-      } else if (el.nodeType != null) {
-        element = el;
-      }
-      if (element == null) {
-        throw new Error(
-          `Invalid \`${name}\` option provided. Please provide a CSS selector or a plain HTML element.`,
-        );
-      }
-      return element;
-    };
-    let hiddenFileInput;
-    let clickableElements = [];
     const dragAndDropCapable = ref(false);
+    const accepts = reactive([]);
     // Watch on props
+    // TODO - convert to reactive object config {}
     const autoUpload = ref(props.uploadOnDrop);
     const parallelUpload = ref(props.parallelUpload);
     const multipleUpload = ref(props.multipleUpload);
+    const maxFiles = ref(props.maxFiles);
+    const hiddenInputContainer = ref(props.hiddenInputContainer);
+    const clickable = ref(props.clickable);
+    const acceptedFiles = ref(props.acceptedFiles);
+    const config = reactive({
+      maxFileSize: props.maxFileSize,
+    });
+    // Watch on props changes
+    watch(() => props.maxFileSize, (val) => { config.maxFileSize = val; });
+    watch(() => props.acceptedFiles, (val) => { acceptedFiles.value = val; });
+    watch(() => props.maxFiles, (val) => { maxFiles.value = val; });
+    watch(() => props.hiddenInputContainer, (val) => { hiddenInputContainer.value = val; });
+    watch(() => props.clickable, (val) => { clickable.value = val; });
     watch(() => props.uploadOnDrop, (val) => { autoUpload.value = val; });
     watch(() => props.parallelUpload, (val) => { parallelUpload.value = val; });
     watch(() => props.multipleUpload, (val) => { multipleUpload.value = val; });
+
     const items = reactive({
       ids: [],
       all: {},
     });
 
+    // Add the thumbnail generator feature
     const {
       enqueueThumbnail,
     } = useThumbnail({ items });
 
+    // File upload queue feature
     const {
       enqueueFile,
       processQueue,
@@ -140,7 +152,66 @@ export default defineComponent({
       items,
     });
 
+    // CREATE THE ACCEPTS ARRAY
+    if (props.acceptedFiles !== null) {
+      props.acceptedFiles.forEach((accept) => {
+        const mineType = mineTypes.data
+          .filter((mt) => (mt.ext && mt.ext === accept) || mt.mime_type.startsWith(accept))
+          .map((mediaType) => mediaType.mime_type);
+        accepts.push(...mineType);
+      });
+    }
+    /*
+      Removes a select file the user has uploaded
+    */
+    const removeFile = (fileId) => {
+      const index = items.ids.findIndex((id) => id === fileId);
+      if (index < 0) {
+        return;
+      }
+      items.ids.splice(index, 1);
+      delete items.all[fileId];
+    };
+    const isValidFile = (file) => {
+      if (accepts === null || accepts.length === 0) {
+        return true;
+      }
+      const fileMineType = file.type;
+      let isValid = accepts
+        .findIndex((validType) => validType.trim() === fileMineType.trim()) !== -1;
+      if (!isValid) {
+        // Retrieve the extension from the file if it exist
+        const splitFileName = file.name.split('.');
+        if (splitFileName.length > 1) {
+          const ext = splitFileName[splitFileName.length - 1];
+          // Retrieve mine-type from extension
+          const extMineTypes = mineTypes.data
+            .filter((mt) => (mt.ext && !!mt.ext.split(/\s/)
+              .find((extension) => ext === extension)))
+            .map((mediaType) => mediaType.mime_type);
+          isValid = !!accepts.find((mt) => extMineTypes.find((extMt) => extMt === mt));
+        }
+      }
+      if (!isValid) {
+        // TODO - last check what can be ??
+      }
+      return isValid;
+    };
     const addFile = (id, file) => {
+      console.debug('addFile', file);
+      // Check the size
+      console.debug(config.maxFileSize, file.size);
+      if (config.maxFileSize && file.size > config.maxFileSize) {
+        console
+          .warn(`ignored file: ${file.name} with size ~= ${(file.size / 1024 / 1024)
+            .toPrecision(3)} mb`);
+        return;
+      }
+      // Filter invalid type
+      if (!isValidFile(file)) {
+        console.warn(`ignored file: ${file.name}`);
+        return;
+      }
       // Add the id
       items.ids.push(id);
       // eslint-disable-next-line no-param-reassign
@@ -154,89 +225,36 @@ export default defineComponent({
       enqueueThumbnail(id, file);
       enqueueFile(id);
     };
+    // Hidden input file feature
+    const {
+      initHiddenFileInput,
+      destroyHiddenFileInput,
+    } = useHiddenInputFile({
+      addFile,
+      accepts,
+      dropzone,
+      maxFiles,
+      hiddenInputContainer,
+      clickable,
+    });
 
+    // Drag and drop file feature
     const {
       handleDragOver,
       onDrop,
     } = useDragAndDrop({
       addFile,
     });
-    const triggerClickOnHiddenFileInput = (evt) => {
-      console.log(evt);
-      if (clickableElements.findIndex((el) => el === evt.target) !== -1) {
-        hiddenFileInput.click();
-      }
-    };
+
     onMounted(() => {
+      console.debug('onMounted');
       dragAndDropCapable.value = determineDragAndDropCapable();
-
-      if (props.clickable) {
-        clickableElements = [dropzone.value];
-
-        const setupHiddenFileInput = () => {
-          if (hiddenFileInput) {
-            hiddenFileInput.parentNode.removeChild(hiddenFileInput);
-          }
-          hiddenFileInput = document.createElement('input');
-          hiddenFileInput.setAttribute('type', 'file');
-          if (props.maxFiles === null || props.maxFiles > 1) {
-            hiddenFileInput.setAttribute('multiple', 'multiple');
-          }
-          // TODO - accepted files
-          // TODO - caputure
-          // Make sure that no one can tab in this input field.
-          hiddenFileInput.setAttribute('tabindex', '-1');
-          hiddenFileInput.style.visibility = 'hidden';
-          hiddenFileInput.style.position = 'absolute';
-          hiddenFileInput.style.top = '0';
-          hiddenFileInput.style.left = '0';
-          hiddenFileInput.style.height = '0';
-          hiddenFileInput.style.width = '0';
-          getElement(props.hiddenInputContainer, 'hiddenInputContainer')
-            .appendChild(hiddenFileInput);
-          hiddenFileInput.addEventListener('change', () => {
-            const { files } = hiddenFileInput;
-            files.forEach((file) => {
-              addFile(uuidv4(), file);
-            });
-            setupHiddenFileInput();
-          });
-        };
-        setupHiddenFileInput();
-        clickableElements.forEach((el) => {
-          el.classList.add('dropzone-clickable');
-          el.addEventListener('click', triggerClickOnHiddenFileInput);
-        });
-      }
+      initHiddenFileInput();
     });
     onUnmounted(() => {
-      // Remove all events
-      clickableElements.forEach((el) => {
-        el.removeEventListener('click', triggerClickOnHiddenFileInput);
-      });
-      // Delete the hidden input file
-      if (hiddenFileInput) {
-        hiddenFileInput.parentElement.removeChild(hiddenFileInput);
-        hiddenFileInput = null;
-      }
+      console.debug('onUnmounted');
+      destroyHiddenFileInput();
     });
-    const accepts = ref(
-      [...mineTypes.data.filter((mineType) => mineType.ext && mineType.ext === 'pdf')
-        .map((mediaType) => mediaType.mime_type),
-      ],
-    );
-
-    /*
-      Removes a select file the user has uploaded
-    */
-    const removeFile = (fileId) => {
-      const index = items.ids.findIndex((id) => id === fileId);
-      if (index < 0) {
-        return;
-      }
-      items.ids.splice(index, 1);
-      delete items.all[fileId];
-    };
     return {
       ...toRefs(items),
       accepts,

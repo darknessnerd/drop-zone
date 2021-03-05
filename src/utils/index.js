@@ -2,6 +2,30 @@
 const uuidv4 = () => ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g,
   // eslint-disable-next-line no-mixed-operators,no-bitwise
   (c) => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+
+/**
+ *
+ * Return  element if it's provided a query string or an Element
+ *
+ * @param el
+ * @param name
+ * @returns HTMLElement
+ * @throws Error - if the element was not found
+ */
+const getElement = function (el, name) {
+  let element;
+  if (typeof el === 'string') {
+    element = document.querySelector(el);
+  } else if (el.nodeType != null) {
+    element = el;
+  }
+  if (element == null) {
+    throw new Error(
+      `Invalid \`${name}\` option provided. Please provide a CSS selector or a plain HTML element.`,
+    );
+  }
+  return element;
+};
 const determineDragAndDropCapable = function () {
   /*
     Create a test element to see if certain events
@@ -89,4 +113,5 @@ export {
   filesize,
   noPropagation,
   determineDragAndDropCapable,
+  getElement,
 };

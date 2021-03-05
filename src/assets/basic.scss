@@ -96,6 +96,9 @@
   * {
     cursor: default;
   }
+  .dropzone__message {
+    cursor: pointer;
+  }
 }
 
 .dropzone__details {
@@ -131,8 +134,8 @@
   display: block;
   top: 50%;
   left: 50%;
-  margin-left: -27px;
-  margin-top: -27px;
+  margin-left: -29px;
+  margin-top: -29px;
   width: 54px;
   height: 54px;
 }

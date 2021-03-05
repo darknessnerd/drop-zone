@@ -38,6 +38,7 @@ export default function useDragAndDrop({
               ) {
                 return;
               }
+              console.warn(entry);
               // eslint-disable-next-line no-param-reassign
               file.fullPath = `${path}/${file.name}`;
               addFile(uuidv4(), file);
@@ -58,8 +59,10 @@ export default function useDragAndDrop({
   // When a folder is dropped (or files are pasted), items must be handled
   // instead of files.
   const addFilesFromItems = (dataTransferItems, includeFirstLvl) => {
+    console.warn(dataTransferItems);
     dataTransferItems.forEach((dataTransferItem) => {
       let entry = null;
+      console.warn(dataTransferItem);
       if (dataTransferItem.webkitGetAsEntry != null) {
         entry = dataTransferItem.webkitGetAsEntry();
         if (entry.isFile && includeFirstLvl) {

@@ -40,6 +40,7 @@ DevStory.args = {
     + ':uploadOnDrop="uploadOnDrop" '
     + ':parallelUpload="Number(parallelUpload)" '
     + ':multipleUpload="multipleUpload" '
+    + ':acceptedFiles="[\'pdf\', \'image\', \'doc\']"'
     + '/>'
     + '<div> '
     + '<div> auto upload on drop: <input type="checkbox" v-model="uploadOnDrop"></div>'
