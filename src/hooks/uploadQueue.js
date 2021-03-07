@@ -14,6 +14,7 @@ export default function useUploadQueue({
   const processQueue = () => {
     const {
       upload,
+      uploadWithChunking,
     } = useUploadXHR({ retryOnError: config.retryOnError, items });
     const currentProcessing = Object
       .values(items.all)
@@ -38,7 +39,9 @@ export default function useUploadQueue({
     };
     let i = currentProcessing;
     console.debug(`start to processQueue for ${config.parallelUpload - i}items`);
-    if (config.multipleUpload) {
+    if (config.chunking) {
+      uploadWithChunking(queuedFiles.shift(), triggerProcessQueue, triggerProcessQueue);
+    } else if (config.multipleUpload) {
       upload(queuedFiles.slice(0, config.parallelUpload - currentProcessing),
         triggerProcessQueue,
         triggerProcessQueue);

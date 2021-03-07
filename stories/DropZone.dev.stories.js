@@ -1,6 +1,6 @@
 import DropZone from '@/index';
 import './assets/custom.scss';
-import { ref } from 'vue';
+import { ref, reactive, toRefs } from 'vue';
 import controls from './controls';
 
 export default {
@@ -20,12 +20,22 @@ const Template = (args) => ({
   components: { DropZone },
   // The story's `args` need to be mapped into the template through the `setup()` method
   setup() {
-    const uploadOnDrop = ref(true);
-    const parallelUpload = ref(1);
-    const multipleUpload = ref(true);
-    const maxFiles = ref(10);
+    const config = reactive(
+      {
+        dropZone: {
+          uploadOnDrop: true,
+          parallelUpload: 1,
+          multipleUpload: true,
+          maxFiles: 10,
+          chunking: true,
+        },
+      },
+    );
+    const onUpdateConfig = (newConfig) => {
+      config.dropZone = { ...config.dropZone, ...newConfig };
+    };
     return {
-      args, uploadOnDrop, multipleUpload, parallelUpload, maxFiles,
+      args, ...toRefs(config), onUpdateConfig,
     };
   },
   // And then the `args` are bound to your component with `v-bind="args"`
@@ -38,16 +48,19 @@ DevStory.argTypes = {
 };
 DevStory.args = {
   template: '<DropZone '
-    + ':uploadOnDrop="uploadOnDrop" '
-    + ':parallelUpload="Number(parallelUpload)" '
-    + ':multipleUpload="multipleUpload" '
-    + ':maxFiles="Number(maxFiles)" '
-    + ':acceptedFiles="[\'pdf\', \'image\', \'doc\']"'
+    + 'v-on:configUpdate="onUpdateConfig" '
+    + ':uploadOnDrop="dropZone.uploadOnDrop" '
+    + ':parallelUpload="Number(dropZone.parallelUpload)" '
+    + ':multipleUpload="dropZone.multipleUpload" '
+    + ':chunking="dropZone.chunking" '
+    + ':maxFiles="Number(dropZone.maxFiles)" '
+    + ':acceptedFiles="[\'pdf\', \'image\', \'exe\']" '
     + '/>'
     + '<div> '
-    + '<div> auto upload on drop: <input type="checkbox" v-model="uploadOnDrop"></div>'
-    + '<div> parallel upload: <input type="number" v-model="parallelUpload"></div>'
-    + '<div> multiple upload: <input type="checkbox" v-model="multipleUpload"></div>'
-    + '<div> maxFiles: <input type="number" v-model="maxFiles"></div>'
+    + '<div> auto upload on drop: <input type="checkbox" v-model="dropZone.uploadOnDrop"></div>'
+    + '<div> parallel upload: <input type="number" v-model="dropZone.parallelUpload"></div>'
+    + '<div> multiple upload: <input type="checkbox" v-model="dropZone.multipleUpload"></div>'
+    + '<div> chunking: <input type="checkbox" v-model="dropZone.chunking"></div>'
+    + '<div> maxFiles: <input type="number" v-model="dropZone.maxFiles"></div>'
     + '</div>',
 };

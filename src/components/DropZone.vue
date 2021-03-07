@@ -48,18 +48,19 @@
 </template>
 <script>
 import {
-  defineComponent, ref, onMounted, reactive, toRefs, watch, onUnmounted,
+  defineComponent, onMounted, onUnmounted, reactive, ref, toRefs, watch,
 } from 'vue';
 import mineTypes from '@/utils/minetypes';
-import {
-  filesize, determineDragAndDropCapable,
-} from '@/utils';
+import { determineDragAndDropCapable, filesize } from '@/utils';
 import useDragAndDrop from '@/hooks/drag';
 import useThumbnail from '@/hooks/thumbnail';
 import useUploadQueue from '@/hooks/uploadQueue';
 import STATUS from '@/utils/status';
 import useHiddenInputFile from '@/hooks/hiddenIpuntFile';
 
+// TODO - XHR request configurable, url method and auth
+// TODO - move all function into the file manager
+// TODO - emit some events. add, upload complete, upload error
 // TODO - retry policy
 // TODO - upload file chuncked
 // TODO - disable
@@ -67,45 +68,84 @@ import useHiddenInputFile from '@/hooks/hiddenIpuntFile';
 // TODO - add slot for inputs to be sent with the request
 export default defineComponent({
   name: 'DropZone',
+  emits: ['config-update'],
   props: {
+    /**
+     * Auto upload on drop item or select items form hiddent input
+     */
     uploadOnDrop: {
       type: Boolean,
       default: false,
     },
+    /**
+     * Retry an upload if it fail, TODO - the policy need to be implemented
+     */
     retryOnError: {
       type: Boolean,
       default: false,
     },
+    /**
+     * Send more items in one request, this is disabled in case of the prop chunking is
+     * active
+     */
     multipleUpload: {
       type: Boolean,
       default: false,
     },
+    /**
+     * Parallel files upload to be process
+     */
     parallelUpload: {
       type: Number,
       default: 3,
     },
+    /**
+     * Max files number accepted by the Dropzone
+     */
     maxFiles: {
       type: Number,
       default: null,
     },
-    // Bytes value for the max upload size allowed
+    /**
+     * Bytes value for the max upload size allowed
+     */
     maxFileSize: {
       type: Number,
-      default: 1000000,
+      // default: 1000000, 1mb
+      default: 67157309,
     },
+    /**
+     * Element or query selector where the hidden Input it's placed
+     */
     hiddenInputContainer: {
       default: 'body',
     },
+    /**
+     * If active enable the dropzone to be clickable and show the files selection
+     */
     clickable: {
       type: Boolean,
       default: true,
     },
+    /**
+     * Array that contain the accepted files, possibile values:
+     * ['image', 'doc', 'video', 'png', ... , 'audio' ]
+     * for a full list see: TODO - place a link with the full accepted
+     */
     acceptedFiles: {
       type: Array,
       default: null,
     },
+    /**
+     * Enable the upload chunking feature, if this is active the multipleUpload for request is
+     * disabled.
+     */
+    chunking: {
+      type: Boolean,
+      default: false,
+    },
   },
-  setup(props) {
+  setup(props, context) {
     const dropzone = ref();
     const dragAndDropCapable = ref(false);
     const accepts = reactive([]);
@@ -115,22 +155,17 @@ export default defineComponent({
       maxFileSize: props.maxFileSize,
       autoUpload: props.uploadOnDrop,
       parallelUpload: props.parallelUpload,
-      multipleUpload: props.multipleUpload,
       hiddenInputContainer: props.hiddenInputContainer,
       clickable: props.clickable,
       acceptedFiles: props.acceptedFiles,
       retryOnError: props.retryOnError,
+      chunking: props.chunking,
+      multipleUpload: props.chunking ? false : props.multipleUpload,
     });
-    // Watch on props changes
-    watch(() => props.maxFileSize, (val) => { config.maxFileSize = val; });
-    watch(() => props.acceptedFiles, (val) => { config.acceptedFiles = val; });
-    watch(() => props.maxFiles, (val) => { config.maxFiles = val; });
-    watch(() => props.hiddenInputContainer, (val) => { config.hiddenInputContainer = val; });
-    watch(() => props.clickable, (val) => { config.clickable = val; });
-    watch(() => props.uploadOnDrop, (val) => { config.autoUpload = val; });
-    watch(() => props.parallelUpload, (val) => { config.parallelUpload = val; });
-    watch(() => props.retryOnError, (val) => { config.retryOnError = val; });
-
+    const emitConfigUpdate = () => {
+      context.emit('config-update', { ...config });
+    };
+    emitConfigUpdate();
     const items = reactive({
       ids: [],
       all: {},
@@ -153,10 +188,16 @@ export default defineComponent({
     // CREATE THE ACCEPTS ARRAY
     if (props.acceptedFiles !== null) {
       props.acceptedFiles.forEach((accept) => {
-        const mineType = mineTypes.data
-          .filter((mt) => (mt.ext && mt.ext === accept) || mt.mime_type.startsWith(accept))
-          .map((mediaType) => mediaType.mime_type);
-        accepts.push(...mineType);
+        mineTypes.data
+          .filter((mt) => (
+            mt.ext && !!mt.ext.split(/\s/).find((extension) => accept === extension)
+          ) || mt.mime_type.startsWith(accept))
+          .forEach((mdType) => {
+            accepts.push(mdType.mime_type);
+            if (mdType.ext) {
+              accepts.push(...mdType.ext.split(/\s/).map((e) => `.${e}`));
+            }
+          });
       });
     }
     /*
@@ -177,6 +218,7 @@ export default defineComponent({
       const fileMineType = file.type;
       let isValid = accepts
         .findIndex((validType) => validType.trim() === fileMineType.trim()) !== -1;
+      console.debug(fileMineType, isValid);
       if (!isValid) {
         // Retrieve the extension from the file if it exist
         const splitFileName = file.name.split('.');
@@ -184,8 +226,9 @@ export default defineComponent({
           const ext = splitFileName[splitFileName.length - 1];
           // Retrieve mine-type from extension
           const extMineTypes = mineTypes.data
-            .filter((mt) => (mt.ext && !!mt.ext.split(/\s/)
-              .find((extension) => ext === extension)))
+            .filter((mt) => (
+              mt.ext && !!mt.ext.split(/\s/).find((extension) => ext === extension)
+            ))
             .map((mediaType) => mediaType.mime_type);
           isValid = !!accepts.find((mt) => extMineTypes.find((extMt) => extMt === mt));
         }
@@ -198,7 +241,7 @@ export default defineComponent({
     const addFile = (id, file) => {
       console.debug('addFile', file);
       // Check the size
-      console.debug(config.maxFileSize, file.size);
+      console.debug(accepts);
       if (config.maxFileSize && file.size > config.maxFileSize) {
         console
           .warn(`ignored file: ${file.name} with size ~= ${(file.size / 1024 / 1024)
@@ -255,6 +298,71 @@ export default defineComponent({
     onUnmounted(() => {
       console.debug('onUnmounted');
       destroyHiddenFileInput();
+    });
+    // Watch on props changes
+    watch(() => props.maxFiles, (val) => {
+      if (config.maxFiles !== val) {
+        config.maxFiles = val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.maxFileSize, (val) => {
+      if (config.maxFileSize !== val) {
+        config.maxFileSize = val;
+        emitConfigUpdate();
+        destroyHiddenFileInput();
+        initHiddenFileInput();
+      }
+    });
+    watch(() => props.acceptedFiles, (val) => {
+      if (!config.acceptedFiles.every((accept) => val.includes(accept))) {
+        config.acceptedFiles = [...val];
+        emitConfigUpdate();
+      }
+    });
+
+    watch(() => props.hiddenInputContainer, (val) => {
+      if (config.hiddenInputContainer !== val) {
+        config.hiddenInputContainer = val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.clickable, (val) => {
+      if (config.hiddenInputContainer !== val) {
+        config.clickable = val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.uploadOnDrop, (val) => {
+      if (config.uploadOnDrop !== val) {
+        config.autoUpload = val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.parallelUpload, (val) => {
+      if (config.parallelUpload !== val) {
+        config.parallelUpload = val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.retryOnError, (val) => {
+      if (config.retryOnError !== val) {
+        config.retryOnError = val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.multipleUpload, (val) => {
+      if (config.multipleUpload !== val) {
+        config.multipleUpload = config.chunking ? false : val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.chunking, (val) => {
+      if (config.chunking !== val) {
+        config.chunking = val;
+        config.multipleUpload = val ? false : config.multipleUpload;
+        emitConfigUpdate();
+      }
     });
     return {
       ...toRefs(items),

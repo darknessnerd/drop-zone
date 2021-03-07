@@ -7,10 +7,13 @@ const storage = multer.diskStorage({
     cb(null, 'upload');
   },
   filename(req, file, cb) {
-    // You could rename the file name
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-    // You could use the original name
-    // cb(null, file.originalname);
+    if (req.body.chunkIndex) {
+      const fileName = path.basename(file.originalname, path.extname(file.originalname));
+      cb(null, `${fileName}.${path.extname(file.originalname)}-${req.body.chunkIndex}`);
+    } else {
+      // You could use the original name
+      cb(null, file.originalname);
+    }
   },
 });
 
