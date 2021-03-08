@@ -58,11 +58,9 @@ import useUploadQueue from '@/hooks/uploadQueue';
 import STATUS from '@/utils/status';
 import useHiddenInputFile from '@/hooks/hiddenIpuntFile';
 
-// TODO - XHR request configurable, url method and auth
 // TODO - move all function into the file manager
 // TODO - emit some events. add, upload complete, upload error
 // TODO - retry policy
-// TODO - upload file chuncked
 // TODO - disable
 // TODO - Understand capture
 // TODO - add slot for inputs to be sent with the request
@@ -70,6 +68,48 @@ export default defineComponent({
   name: 'DropZone',
   emits: ['config-update'],
   props: {
+    headers: {
+      type: Object,
+      default: null,
+      validator: (val) => {
+        const foundNonValid = Object
+          .values(val)
+          .find((k) => typeof k !== 'string' && typeof k !== 'number');
+        return !foundNonValid;
+      },
+    },
+    xhrTimeout: {
+      type: Number,
+      default: 6000,
+      validator: (val) => val >= 0,
+    },
+    withCredentials: {
+      type: Boolean,
+      default: false,
+    },
+    /**
+     * Upload xhr method can be post or put
+     */
+    method: {
+      type: String,
+      default: 'POST',
+      validator: (val) => val.toUpperCase() === 'POST' || val.toUpperCase() === 'PUT',
+    },
+    /**
+     * Upload url, if null it will set the window location
+     */
+    url: {
+      type: String,
+      default: null,
+      validator: (val) => {
+        if (val === null) return true;
+        try {
+          return new URL(val) !== undefined;
+        } catch {
+          return false;
+        }
+      },
+    },
     /**
      * Auto upload on drop item or select items form hiddent input
      */
@@ -144,13 +184,27 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    /**
+     * If the chunking mode is active this property represents the number of
+     * chunks with which the file will be split
+     */
+    numberOfChunks: {
+      type: Number,
+      default: 10,
+    },
   },
   setup(props, context) {
     const dropzone = ref();
     const dragAndDropCapable = ref(false);
     const accepts = reactive([]);
+    const getWindowUrl = () => (window.URL !== null ? window.URL : window.webkitURL);
     // Dropbox reactive config
     const config = reactive({
+      headers: props.headers,
+      xhrTimeout: props.xhrTimeout,
+      withCredentials: props.withCredentials,
+      url: props.url ? props.url : getWindowUrl(),
+      method: props.method,
       maxFiles: props.maxFiles,
       maxFileSize: props.maxFileSize,
       autoUpload: props.uploadOnDrop,
@@ -160,6 +214,7 @@ export default defineComponent({
       acceptedFiles: props.acceptedFiles,
       retryOnError: props.retryOnError,
       chunking: props.chunking,
+      numberOfChunks: props.numberOfChunks,
       multipleUpload: props.chunking ? false : props.multipleUpload,
     });
     const emitConfigUpdate = () => {
@@ -218,7 +273,6 @@ export default defineComponent({
       const fileMineType = file.type;
       let isValid = accepts
         .findIndex((validType) => validType.trim() === fileMineType.trim()) !== -1;
-      console.debug(fileMineType, isValid);
       if (!isValid) {
         // Retrieve the extension from the file if it exist
         const splitFileName = file.name.split('.');
@@ -232,9 +286,6 @@ export default defineComponent({
             .map((mediaType) => mediaType.mime_type);
           isValid = !!accepts.find((mt) => extMineTypes.find((extMt) => extMt === mt));
         }
-      }
-      if (!isValid) {
-        // TODO - last check what can be ??
       }
       return isValid;
     };
@@ -300,6 +351,30 @@ export default defineComponent({
       destroyHiddenFileInput();
     });
     // Watch on props changes
+    watch(() => props.headers, (val) => {
+      if (config.headers !== val) {
+        config.headers = val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.xhrTimeout, (val) => {
+      if (config.xhrTimeout !== val) {
+        config.xhrTimeout = val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.withCredentials, (val) => {
+      if (config.withCredentials !== val) {
+        config.withCredentials = val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.method, (val) => {
+      if (config.method !== val) {
+        config.method = val;
+        emitConfigUpdate();
+      }
+    });
     watch(() => props.maxFiles, (val) => {
       if (config.maxFiles !== val) {
         config.maxFiles = val;
@@ -354,6 +429,12 @@ export default defineComponent({
     watch(() => props.multipleUpload, (val) => {
       if (config.multipleUpload !== val) {
         config.multipleUpload = config.chunking ? false : val;
+        emitConfigUpdate();
+      }
+    });
+    watch(() => props.numberOfChunks, (val) => {
+      if (config.numberOfChunks !== val) {
+        config.numberOfChunks = val;
         emitConfigUpdate();
       }
     });

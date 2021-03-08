@@ -1,6 +1,6 @@
 import DropZone from '@/index';
 import './assets/custom.scss';
-import { ref, reactive, toRefs } from 'vue';
+import { reactive, toRefs } from 'vue';
 import controls from './controls';
 
 export default {
@@ -28,6 +28,8 @@ const Template = (args) => ({
           multipleUpload: true,
           maxFiles: 10,
           chunking: true,
+          numberOfChunks: 2,
+          customHeaders: { 'x-test': 'value', 'x-number': 5 },
         },
       },
     );
@@ -53,8 +55,13 @@ DevStory.args = {
     + ':parallelUpload="Number(dropZone.parallelUpload)" '
     + ':multipleUpload="dropZone.multipleUpload" '
     + ':chunking="dropZone.chunking" '
+    + ':numberOfChunks="dropZone.numberOfChunks" '
+    + ' url="http://localhost:5000/item" '
     + ':maxFiles="Number(dropZone.maxFiles)" '
-    + ':acceptedFiles="[\'pdf\', \'image\', \'exe\']" '
+    + ' :withCredentials="false" '
+    + ' :xhrTimeout="2000" '
+    + ' :headers="dropZone.customHeaders" '
+    + ':acceptedFiles="[\'pdf\', \'image\', \'exe\', \'zip\']" '
     + '/>'
     + '<div> '
     + '<div> auto upload on drop: <input type="checkbox" v-model="dropZone.uploadOnDrop"></div>'
