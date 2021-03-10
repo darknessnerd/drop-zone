@@ -34,6 +34,7 @@ export default function useUploadXHR({ config, items }) {
       item.upload.sliceSize = sliceSize;
       // eslint-disable-next-line no-param-reassign
       item.upload.reader = reader;
+      // eslint-disable-next-line no-use-before-define
       makeRequest(uploadId, [item], onFinish, onError);
     };
     reader.readAsDataURL(blob);
@@ -131,6 +132,7 @@ export default function useUploadXHR({ config, items }) {
             response = 'Invalid JSON response from server.';
           }
         }
+        console.debug(response);
       }
       if (!(xhr.status >= 200 && xhr.status < 300)) {
         error(uploadId, e, onError);

@@ -3,6 +3,8 @@ const uuidv4 = () => ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g,
   // eslint-disable-next-line no-mixed-operators,no-bitwise
   (c) => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
 
+const getWindowUrl = () => (window.URL !== null ? window.URL : window.webkitURL);
+
 /**
  *
  * Return  element if it's provided a query string or an Element
@@ -12,7 +14,7 @@ const uuidv4 = () => ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g,
  * @returns HTMLElement
  * @throws Error - if the element was not found
  */
-const getElement = function (el, name) {
+const getElement = (el, name) => {
   let element;
   if (typeof el === 'string') {
     element = document.querySelector(el);
@@ -26,7 +28,7 @@ const getElement = function (el, name) {
   }
   return element;
 };
-const determineDragAndDropCapable = function () {
+const determineDragAndDropCapable = () => {
   /*
     Create a test element to see if certain events
     are present that let us do drag and drop.
@@ -46,7 +48,7 @@ const determineDragAndDropCapable = function () {
     && 'FormData' in window
     && 'FileReader' in window;
 };
-const containsFiles = function (e) {
+const containsFiles = (e) => {
   if (e.dataTransfer.types) {
     // Because e.dataTransfer.types is an Object in
     // IE, we need to iterate like this instead of
@@ -63,7 +65,7 @@ const containsFiles = function (e) {
  *
  * @param e
  */
-const noPropagation = function (e) {
+const noPropagation = (e) => {
   // If there are no files, we don't want to stop
   // propagation so we don't interfere with other
   // drag and drop behaviour.
@@ -109,6 +111,7 @@ const filesize = (size) => {
   return `<strong>${selectedSize}</strong> ${dictFileSizeUnits[selectedUnit]}`;
 };
 export {
+  getWindowUrl,
   uuidv4,
   filesize,
   noPropagation,

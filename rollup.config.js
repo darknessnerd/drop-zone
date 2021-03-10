@@ -27,12 +27,14 @@ export default {
       format: 'cjs',
       sourcemap: true,
       banner,
+      exports: 'default',
     },
     {
       file: pkg.unpkg,
       format: 'umd',
       name: 'drop-zone',
       sourcemap: true,
+      exports: 'default',
       globals: {
         vue: 'Vue',
       },
@@ -42,6 +44,7 @@ export default {
   // this is an array of the plugins that we are including
   plugins: [
     replace({
+      preventAssignment: true,
       'process.env.NODE_ENV': JSON.stringify('production'),
       __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
     }),
@@ -64,9 +67,12 @@ export default {
       },
     }),
     babel({
-      exclude: 'node_modules/**',
+      exclude: ['node_modules/**', 'core-js/*'],
       extensions: ['.js', '.jsx', '.vue'],
-      babelHelpers: 'bundled',
+      babelHelpers: 'runtime',
+      presets: [
+        '@babel/preset-env',
+      ],
     }),
     commonjs(), // Convert CommonJS modules to ES6, so they can be included in a Rollup bundle
     nodeResolve(),
@@ -82,7 +88,7 @@ export default {
   ],
   // ask rollup to not bundle Vue in the library
   external: [
-    ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.peerDependencies || {}),
+    ...Object.keys(pkg.dependencies || {}),
   ],
 };

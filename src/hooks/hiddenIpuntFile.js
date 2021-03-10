@@ -4,21 +4,12 @@ import { getElement, uuidv4 } from '@/utils';
  * Create and hidden input file in order to click on the dropzone clickable area
  * and trigger the file selection
  *
- * @param addFile - addFile callback that
- * @param accepts - mine-types array, can be null or empty
- * @param dropzone - root element for the dropzone
- * @param maxFiles - max number of file that can accept the file selection
- * @param hiddenInputContainer - where is create he input hidden field,
- *        can be an element or a valid query string
- * @param clickable - True if the hiddenIputFile need to be created
- * @returns {{}}
+ * @returns {{
+ *      initHiddenFileInput: initHiddenFileInput,
+ *      destroyHiddenFileInput: destroyHiddenFileInput
+ * }}
  */
-export default function useHiddenInputFile({
-  addFile,
-  accepts,
-  dropzone,
-  config,
-}) {
+export default function useHiddenInputFile() {
   let hiddenFileInput;
   let clickableElements = [];
   const triggerClickOnHiddenFileInput = (evt) => {
@@ -26,14 +17,21 @@ export default function useHiddenInputFile({
       hiddenFileInput.click();
     }
   };
-  const setupHiddenFileInput = () => {
+  const setMultiple = (multiple) => {
+    if (hiddenFileInput && multiple) {
+      hiddenFileInput.setAttribute('multiple', 'multiple');
+    } else if (hiddenFileInput && !multiple) {
+      hiddenFileInput.removeAttribute('multiple');
+    }
+  };
+  const setupHiddenFileInput = ({ config, addFile, accepts }) => {
     if (hiddenFileInput) {
       hiddenFileInput.parentNode.removeChild(hiddenFileInput);
     }
     hiddenFileInput = document.createElement('input');
     hiddenFileInput.setAttribute('type', 'file');
     if (config.maxFiles === null || config.maxFiles > 1) {
-      hiddenFileInput.setAttribute('multiple', 'multiple');
+      setMultiple(true);
     }
     if (accepts.length > 0) {
       hiddenFileInput.setAttribute('accept', accepts.join(','));
@@ -54,16 +52,27 @@ export default function useHiddenInputFile({
       files.forEach((file) => {
         addFile(uuidv4(), file);
       });
-      setupHiddenFileInput();
+      setupHiddenFileInput({ config, addFile, accepts });
     });
   };
-  const initHiddenFileInput = () => {
+  /**
+   *
+   * Create the hidden input file
+   *
+   * @param config - dropzone props
+   * @param dropzone - element ref
+   * @param addFile - callback that add a new file
+   * @param accepts - mine-types array, can be null or empty
+   */
+  const initHiddenFileInput = ({
+    config, dropzone, addFile, accepts,
+  }) => {
     console.debug('initHiddenFileInput');
     if (config.clickable) {
       const message = getElement('.dropzone__message', 'dropzone__message');
       clickableElements = [dropzone.value];
       clickableElements.push(message);
-      setupHiddenFileInput();
+      setupHiddenFileInput({ config, addFile, accepts });
       clickableElements.forEach((el) => {
         el.classList.add('dropzone-clickable');
         el.addEventListener('click', triggerClickOnHiddenFileInput);
@@ -82,5 +91,5 @@ export default function useHiddenInputFile({
       hiddenFileInput = null;
     }
   };
-  return { initHiddenFileInput, destroyHiddenFileInput };
+  return { initHiddenFileInput, destroyHiddenFileInput, setMultiple };
 }

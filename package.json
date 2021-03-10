@@ -18,12 +18,15 @@
     "test:generate-output": "jest --json --outputFile=.jest-test-results.json"
   },
   "peerDependencies": {
-    "vue": "^3.0.5"
+    "vue": "^3.0.5",
+    "core-js": "^3.9.1"
   },
   "engines": {
     "node": ">=12"
   },
   "devDependencies": {
+    "vue": "^3.0.5",
+    "core-js": "^3.9.1",
     "@rollup/plugin-alias": "^3.1.2",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^17.1.0",
@@ -36,6 +39,7 @@
     "@storybook/addons": "^6.2.0-alpha.32",
     "@storybook/theming": "^6.2.0-alpha.32",
     "@storybook/vue3": "^6.2.0-alpha.32",
+    "@vue/cli-plugin-babel": "^4.5.11",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-unit-jest": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
@@ -52,7 +56,6 @@
     "rollup-plugin-vue": "^6.0.0",
     "sass-loader": "^8.0.2",
     "typescript": "~3.9.3",
-    "vue": "^3.0.5",
     "vue-jest": "^5.0.0-0",
     "vue-loader": "^16.1.2"
   }
