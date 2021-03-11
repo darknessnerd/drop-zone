@@ -14,7 +14,10 @@ export default function useHiddenInputFile() {
   let clickableElements = [];
   const triggerClickOnHiddenFileInput = (evt) => {
     if (!evt.detail || evt.detail === 1) {
-      if (clickableElements.findIndex((el) => el === evt.target) !== -1) {
+      if (clickableElements.findIndex((el) => ((el.nodeName === evt.target.nodeName)
+        && (el.nodeType === evt.target.nodeType)
+      )) !== -1) {
+        console.warn(evt.target, clickableElements);
         evt.stopPropagation();
         hiddenFileInput.click();
       }

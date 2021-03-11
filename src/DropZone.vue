@@ -14,24 +14,14 @@
             'dropzone--error': item.status === 'ERROR',
             }">
       <div class="dropzone-image" >
-        <img v-if="item.thumbnail"
-             style="width:100%; height:auto;"
-             :src="item.thumbnail">
+        <img v-if="item.thumbnail" style="width:100%; height:auto;" :src="item.thumbnail">
       </div>
       <div class="dropzone__progress">
-        <progress class="dropzone__progress-bar"
-          max="100" :value.prop="item.upload.progress">
-        </progress>
+        <progress class="dropzone__progress-bar" max="100" :value.prop="item.upload.progress"/>
       </div>
-      <div class="dropzone__success-mark">
-        <i class="gg-check-o"></i>
-      </div>
-      <div class="dropzone__error-mark">
-        <i class="gg-danger"></i>
-      </div>
-      <div class="dropzone__controls">
-        <button @click="removeFile(itemId)">x</button>
-      </div>
+      <div class="dropzone__success-mark"><i class="gg-check-o"></i></div>
+      <div class="dropzone__error-mark"><i class="gg-danger"></i></div>
+      <div class="dropzone__controls"><i @click="removeFile(itemId)" class="gg-close"></i></div>
       <div class="dropzone__details">
         <div class="dropzone__file-size" >
           <span v-html="filesize(item.file.size)"></span>
