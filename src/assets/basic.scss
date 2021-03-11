@@ -1,15 +1,32 @@
 .dropzone, .dropzone * {
   box-sizing: border-box;
 }
+
 .dropzone {
-  border: 2px dashed #03A062;
-  border-radius: 5px;
   background: whitesmoke;
+  border: 2px dashed #03A062;
+  z-index: 10;
+  border-radius: 8px;
   position: relative;
-  min-height: 64px;
   display: flex;
   flex-flow: row wrap;
-  z-index: 10;
+  min-height: 64px;
+
+  &-clickable {
+    cursor: pointer;
+    * {
+      cursor: default;
+    }
+    .dropzone__message * {
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+  }
+
+  &__message {
+    flex-grow: 1;
+    text-align: center;
+  }
 }
 .dropzone__preview:hover {
   z-index: 1000;
@@ -90,15 +107,6 @@
 
 .dropzone__preview-file > .dropzone-image {
   opacity: 1;
-}
-.dropzone-clickable {
-  cursor: pointer;
-  * {
-    cursor: default;
-  }
-  .dropzone__message {
-    cursor: pointer;
-  }
 }
 
 .dropzone__details {

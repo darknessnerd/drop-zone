@@ -1,10 +1,10 @@
 <template>
-  <form class="dropzone"
-       ref="dropzone"
-       @drop="onDrop"
-       @dragover="handleDragOver">
-    <div v-if="ids.length === 0" class="dropzone__message">Drop here</div>
-    <div class="dropzone__preview"
+  <form class="dropzone" ref="dropzone" @drop="onDrop" @dragover="handleDragOver">
+    <div v-if="ids.length === 0" class="dropzone__message">
+      <slot name="message">Drop here</slot>
+    </div>
+    <div v-for="(item, itemId) in all" :key="itemId"
+         class="dropzone__preview"
          :class="{
             'dropzone__preview-file': !item.thumbnail,
             'dropzone__preview-image': item.thumbnail,
@@ -12,9 +12,7 @@
             'dropzone--processing': item.status === 'UPLOADING',
             'dropzone--success': item.status === 'DONE',
             'dropzone--error': item.status === 'ERROR',
-            }"
-         v-for="(item, itemId) in all"
-         :key="itemId">
+            }">
       <div class="dropzone-image" >
         <img v-if="item.thumbnail"
              style="width:100%; height:auto;"

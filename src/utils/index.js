@@ -4,7 +4,6 @@ const uuidv4 = () => ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g,
   (c) => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
 
 const getWindowUrl = () => (window.URL !== null ? window.URL : window.webkitURL);
-
 /**
  *
  * Return  element if it's provided a query string or an Element
@@ -27,6 +26,19 @@ const getElement = (el, name) => {
     );
   }
   return element;
+};
+const getAllDescendants = (el) => {
+  const elements = [];
+  if (el.nodeType !== null) {
+    el.children.forEach((node) => {
+      elements.push(node);
+      const children = getAllDescendants(node);
+      if (children.length > 0) {
+        elements.push(...children);
+      }
+    });
+  }
+  return elements;
 };
 const determineDragAndDropCapable = () => {
   /*
@@ -117,4 +129,5 @@ export {
   noPropagation,
   determineDragAndDropCapable,
   getElement,
+  getAllDescendants,
 };

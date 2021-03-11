@@ -1,4 +1,4 @@
-import { getElement, uuidv4 } from '@/utils';
+import { getAllDescendants, getElement, uuidv4 } from '@/utils';
 
 /**
  * Create and hidden input file in order to click on the dropzone clickable area
@@ -13,9 +13,14 @@ export default function useHiddenInputFile() {
   let hiddenFileInput;
   let clickableElements = [];
   const triggerClickOnHiddenFileInput = (evt) => {
-    if (clickableElements.findIndex((el) => el === evt.target) !== -1) {
-      hiddenFileInput.click();
+    if (!evt.detail || evt.detail === 1) {
+      if (clickableElements.findIndex((el) => el === evt.target) !== -1) {
+        evt.stopPropagation();
+        hiddenFileInput.click();
+      }
+      return true;
     }
+    return false;
   };
   const setMultiple = (multiple) => {
     if (hiddenFileInput && multiple) {
@@ -67,11 +72,14 @@ export default function useHiddenInputFile() {
   const initHiddenFileInput = ({
     config, dropzone, itemManager,
   }) => {
-    console.debug('initHiddenFileInput');
     if (config.clickable) {
-      const message = getElement('.dropzone__message', 'dropzone__message');
+      const element = getElement('.dropzone__message', 'dropzone__message');
+      const elements = getAllDescendants(element);
       clickableElements = [dropzone.value];
-      clickableElements.push(message);
+      clickableElements.push(element);
+      if (elements.length > 0) {
+        clickableElements.push(...elements);
+      }
       setupHiddenFileInput({ config, itemManager });
       clickableElements.forEach((el) => {
         el.classList.add('dropzone-clickable');
@@ -80,7 +88,6 @@ export default function useHiddenInputFile() {
     }
   };
   const destroyHiddenFileInput = () => {
-    console.debug('destroyHiddenFileInput');
     // Remove all events
     clickableElements.forEach((el) => {
       el.removeEventListener('click', triggerClickOnHiddenFileInput);
