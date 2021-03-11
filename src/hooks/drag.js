@@ -1,7 +1,7 @@
 import { noPropagation, uuidv4 } from '@/utils';
 
 export default function useDragAndDrop({
-  addFile,
+  itemManager,
 }) {
   // TODO - Make config
   const ignoreHiddenFiles = false;
@@ -41,7 +41,7 @@ export default function useDragAndDrop({
               console.warn(entry);
               // eslint-disable-next-line no-param-reassign
               file.fullPath = `${path}/${file.name}`;
-              addFile(uuidv4(), file);
+              itemManager.addFile(uuidv4(), file);
             });
           } else if (entry.isDirectory) {
             addFilesFromDirectory(entry, `${path}/${entry.name}`, result);
@@ -66,7 +66,7 @@ export default function useDragAndDrop({
       if (dataTransferItem.webkitGetAsEntry != null) {
         entry = dataTransferItem.webkitGetAsEntry();
         if (entry.isFile && includeFirstLvl) {
-          addFile(uuidv4(), dataTransferItem.getAsFile());
+          itemManager.addFile(uuidv4(), dataTransferItem.getAsFile());
         } else if (entry.isDirectory) {
           addFilesFromDirectory(entry, entry.name);
         } else {
@@ -74,7 +74,7 @@ export default function useDragAndDrop({
         }
       } else if (dataTransferItem.getAsFile != null) {
         if (dataTransferItem.kind == null || dataTransferItem.kind === 'file') {
-          addFile(uuidv4(), dataTransferItem.getAsFile());
+          itemManager.addFile(uuidv4(), dataTransferItem.getAsFile());
         } else {
           console.warn('dataTransferItem.getAsFile: unknown entry');
         }
@@ -95,8 +95,7 @@ export default function useDragAndDrop({
       for (let i = 0; i < $event.dataTransfer.files.length; i += 1) {
         const itemId = uuidv4();
         const file = $event.dataTransfer.files[i];
-        console.log(file);
-        addFile(itemId, file);
+        itemManager.addFile(itemId, file);
       }
     }
   };

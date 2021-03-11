@@ -1,21 +1,21 @@
 const thumbnailQueue = [];
 let isProcessing = false;
-export default function useThumbnail({ items }) {
-  const generateThumbnail = (file, done) => {
+export default function useThumbnail(done) {
+  const generateThumbnail = (item) => {
     const reader = new FileReader();
     /*
         Add an event listener for when the file has been loaded
         to update the src on the file preview.
       */
     reader.addEventListener('load', () => {
-      done(reader.result);
+      done(item.id, reader.result);
     }, false);
     /*
         Read the data for the file in through the reader. When it has
         been loaded, we listen to the event propagated and set the image
         src to what was loaded from the reader.
       */
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(item.file);
   };
   const shiftQueue = () => {
     if (isProcessing || thumbnailQueue.length === 0) {
@@ -23,10 +23,7 @@ export default function useThumbnail({ items }) {
     }
     isProcessing = true;
     const item = thumbnailQueue.shift();
-    generateThumbnail(item.file, (result) => {
-      // eslint-disable-next-line no-param-reassign
-      items.all[item.id].thumbnail = result;
-    });
+    generateThumbnail(item);
     isProcessing = false;
   };
   const enqueueThumbnail = (id, file) => {

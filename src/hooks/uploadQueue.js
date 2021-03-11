@@ -1,3 +1,4 @@
+import { readonly } from 'vue';
 import useUploadXHR from '@/hooks/uploadXHR';
 import STATUS from '@/utils/status';
 
@@ -10,6 +11,7 @@ import STATUS from '@/utils/status';
 export default function useUploadQueue({
   config,
   items,
+  context,
 }) {
   const processQueue = () => {
     const {
@@ -32,25 +34,32 @@ export default function useUploadQueue({
       console.debug('processQueue is empty');
       return;
     }
-    const triggerProcessQueue = () => {
+    const triggerProcessQueue = (uploadedItems) => {
       if (config.autoUpload) {
         processQueue();
       }
+      context.emit('uploaded', readonly(uploadedItems.map((item) => item.file)));
+    };
+    const onError = (ids, error) => {
+      if (config.autoUpload) {
+        processQueue();
+      }
+      context.emit('error-upload', { ids: [...ids], ...error });
     };
     let i = currentProcessing;
     console.debug(`start to processQueue for ${config.parallelUpload - i} items`);
     if (config.chunking) {
-      uploadWithChunking(queuedFiles.shift(), triggerProcessQueue, triggerProcessQueue);
+      uploadWithChunking(queuedFiles.shift(), triggerProcessQueue, onError);
     } else if (config.multipleUpload) {
       upload(queuedFiles.slice(0, config.parallelUpload - currentProcessing),
         triggerProcessQueue,
-        triggerProcessQueue);
+        onError);
     } else {
       while (i <= config.parallelUpload) {
         if (queuedFiles.length <= 0) {
           return;
         }
-        upload([queuedFiles.shift()], triggerProcessQueue, triggerProcessQueue);
+        upload([queuedFiles.shift()], triggerProcessQueue, onError);
         i += 1;
       }
     }

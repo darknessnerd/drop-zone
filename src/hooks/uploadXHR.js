@@ -3,14 +3,15 @@ import STATUS from '@/utils/status';
 
 export default function useUploadXHR({ config, items }) {
   const error = (uploadId, e, onError) => {
+    const idsWithError = [];
     Object.values(items.all)
       .filter((item) => item.upload && item.upload.id === uploadId)
       .forEach((item) => {
         // eslint-disable-next-line no-param-reassign
         item.status = STATUS.ERROR;
+        idsWithError.push(item.id);
       });
-    console.error(`xhr onerror: ${e.type}`);
-    onError();
+    onError(idsWithError, { errorType: e.type });
   };
   const uploadChunck = (chunkStart, sliceSize, item, reader, onFinish, onError, uploadId) => {
     const nextSlice = chunkStart + sliceSize + 1;
@@ -165,7 +166,7 @@ export default function useUploadXHR({ config, items }) {
             }
           });
         if (allDone === true) {
-          onFinish();
+          onFinish(files);
         }
       }
     };

@@ -36,8 +36,17 @@ const Template = (args) => ({
     const onUpdateConfig = (newConfig) => {
       config.dropZone = { ...config.dropZone, ...newConfig };
     };
+    const onEventFile = (item) => {
+      console.log(item);
+    };
+    const onUploaded = (items) => {
+      console.log(items);
+    };
+    const onError = (error) => {
+      console.log(error);
+    };
     return {
-      args, ...toRefs(config), onUpdateConfig,
+      args, ...toRefs(config), onUpdateConfig, onEventFile, onError, onUploaded,
     };
   },
   // And then the `args` are bound to your component with `v-bind="args"`
@@ -52,12 +61,16 @@ DevStory.args = {
   template: '<DropZone '
     + 'v-on:configUpdate="onUpdateConfig" '
     + ':uploadOnDrop="dropZone.uploadOnDrop" '
+    + 'v-on:addedFile="onEventFile" '
+    + 'v-on:removedFile="onEventFile" '
+    + 'v-on:errorUpload="onError" '
+    + 'v-on:uploaded="onUploaded" '
     + ':parallelUpload="Number(dropZone.parallelUpload)" '
     + ':multipleUpload="dropZone.multipleUpload" '
     + ':chunking="dropZone.chunking" '
     + ':numberOfChunks="dropZone.numberOfChunks" '
     + ' url="http://localhost:5000/item" '
-    + ':maxFiles="Number(dropZone.maxFiles)" '
+    + ' :maxFiles="Number(dropZone.maxFiles)" '
     + ' :withCredentials="false" '
     + ' :xhrTimeout="2000" '
     + ' :headers="dropZone.customHeaders" '

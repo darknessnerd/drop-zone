@@ -24,7 +24,7 @@ export default function useHiddenInputFile() {
       hiddenFileInput.removeAttribute('multiple');
     }
   };
-  const setupHiddenFileInput = ({ config, addFile, accepts }) => {
+  const setupHiddenFileInput = ({ config, itemManager }) => {
     if (hiddenFileInput) {
       hiddenFileInput.parentNode.removeChild(hiddenFileInput);
     }
@@ -33,8 +33,8 @@ export default function useHiddenInputFile() {
     if (config.maxFiles === null || config.maxFiles > 1) {
       setMultiple(true);
     }
-    if (accepts.length > 0) {
-      hiddenFileInput.setAttribute('accept', accepts.join(','));
+    if (config.accepts.length > 0) {
+      hiddenFileInput.setAttribute('accept', config.accepts.join(','));
     }
     // TODO - caputure
     // Make sure that no one can tab in this input field.
@@ -50,9 +50,9 @@ export default function useHiddenInputFile() {
     hiddenFileInput.addEventListener('change', () => {
       const { files } = hiddenFileInput;
       files.forEach((file) => {
-        addFile(uuidv4(), file);
+        itemManager.addFile(uuidv4(), file);
       });
-      setupHiddenFileInput({ config, addFile, accepts });
+      setupHiddenFileInput({ config, itemManager });
     });
   };
   /**
@@ -65,14 +65,14 @@ export default function useHiddenInputFile() {
    * @param accepts - mine-types array, can be null or empty
    */
   const initHiddenFileInput = ({
-    config, dropzone, addFile, accepts,
+    config, dropzone, itemManager,
   }) => {
     console.debug('initHiddenFileInput');
     if (config.clickable) {
       const message = getElement('.dropzone__message', 'dropzone__message');
       clickableElements = [dropzone.value];
       clickableElements.push(message);
-      setupHiddenFileInput({ config, addFile, accepts });
+      setupHiddenFileInput({ config, itemManager });
       clickableElements.forEach((el) => {
         el.classList.add('dropzone-clickable');
         el.addEventListener('click', triggerClickOnHiddenFileInput);

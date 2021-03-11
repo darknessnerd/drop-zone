@@ -2,6 +2,7 @@ import { getWindowUrl } from '@/utils';
 import {
   reactive, watch,
 } from 'vue';
+import mineTypes from '@/utils/minetypes';
 
 export default function useConfig({ props, context, setMultiple }) {
   // Dropbox reactive config
@@ -22,12 +23,42 @@ export default function useConfig({ props, context, setMultiple }) {
     chunking: props.chunking,
     numberOfChunks: props.numberOfChunks,
     multipleUpload: props.chunking ? false : props.multipleUpload,
+    accepts: [],
   });
+  const createAcceptsArray = () => {
+    const acceptsTmp = [];
+    // CREATE THE ACCEPTS ARRAY
+    if (props.acceptedFiles !== null) {
+      props.acceptedFiles.forEach((accept) => {
+        mineTypes.data
+          .filter((mt) => (
+            mt.ext && !!mt.ext.split(/\s/).find((extension) => accept === extension)
+          ) || mt.mime_type.startsWith(accept))
+          .forEach((mdType) => {
+            acceptsTmp.push(mdType.mime_type);
+            if (mdType.ext) {
+              acceptsTmp.push(...mdType.ext.split(/\s/).map((e) => `.${e}`));
+            }
+          });
+      });
+    }
+    config.accepts = [...acceptsTmp];
+  };
+
   const emitConfigUpdate = () => {
     context.emit('config-update', { ...config });
   };
+
+  createAcceptsArray();
   emitConfigUpdate();
   // Watch on props changes
+  watch(() => props.acceptedFiles, (val) => {
+    if (!config.acceptedFiles.every((accept) => val.includes(accept))) {
+      config.acceptedFiles = [...val];
+      createAcceptsArray();
+      emitConfigUpdate();
+    }
+  });
   watch(() => props.headers, (val) => {
     if (config.headers !== val) {
       config.headers = val;
@@ -69,13 +100,6 @@ export default function useConfig({ props, context, setMultiple }) {
       }
     }
   });
-  watch(() => props.acceptedFiles, (val) => {
-    if (!config.acceptedFiles.every((accept) => val.includes(accept))) {
-      config.acceptedFiles = [...val];
-      emitConfigUpdate();
-    }
-  });
-
   watch(() => props.hiddenInputContainer, (val) => {
     if (config.hiddenInputContainer !== val) {
       config.hiddenInputContainer = val;
