@@ -29,6 +29,7 @@ const Template = (args) => ({
           maxFiles: 10,
           chunking: true,
           numberOfChunks: 2,
+          retryOnError: true,
           customHeaders: { 'x-test': 'value', 'x-number': 5 },
         },
       },
@@ -67,6 +68,7 @@ DevStory.args = {
     + 'v-on:uploaded="onUploaded" '
     + ':parallelUpload="Number(dropZone.parallelUpload)" '
     + ':multipleUpload="dropZone.multipleUpload" '
+    + ':retryOnError="dropZone.retryOnError" '
     + ':chunking="dropZone.chunking" '
     + ':numberOfChunks="dropZone.numberOfChunks" '
     + ' url="http://localhost:5000/item" '
@@ -77,6 +79,9 @@ DevStory.args = {
     + ':acceptedFiles="[\'pdf\', \'image\', \'exe\', \'zip\']" '
     + '> '
     + ' <template v-slot:message><p>Drop here!!!</p></template>'
+  //    + ' <template v-slot:remove>x</template>'
+  //  + ' <template v-slot:error><div>ERRORE</div></template>'
+  //  + ' <template v-slot:success><div>ok</div></template>'
     + '</DropZone>'
     + ''
     + ''
@@ -85,6 +90,7 @@ DevStory.args = {
     + '<div> parallel upload: <input type="number" v-model="dropZone.parallelUpload"></div>'
     + '<div> multiple upload: <input type="checkbox" v-model="dropZone.multipleUpload"></div>'
     + '<div> chunking: <input type="checkbox" v-model="dropZone.chunking"></div>'
+    + '<div> retryOnError: <input type="checkbox" v-model="dropZone.retryOnError"></div>'
     + '<div> maxFiles: <input type="number" v-model="dropZone.maxFiles"></div>'
     + '</div>',
 };

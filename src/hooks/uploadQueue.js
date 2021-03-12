@@ -28,7 +28,8 @@ export default function useUploadQueue({
 
     const queuedFiles = Object
       .values(items.all)
-      .filter(((item) => item.status === STATUS.QUEUED));
+      .filter(((item) => item.status === STATUS.QUEUED || (
+        item.status === STATUS.ERROR && config.retryOnError && item.upload.retryErrorCounter > 0)));
 
     if (queuedFiles.length <= 0) {
       console.debug('processQueue is empty');

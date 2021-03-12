@@ -20,6 +20,7 @@ export default function useConfig({ props, context, setMultiple }) {
     clickable: props.clickable,
     acceptedFiles: props.acceptedFiles,
     retryOnError: props.retryOnError,
+    maxRetryError: 3,
     chunking: props.chunking,
     numberOfChunks: props.numberOfChunks,
     multipleUpload: props.chunking ? false : props.multipleUpload,
@@ -127,6 +128,12 @@ export default function useConfig({ props, context, setMultiple }) {
   watch(() => props.retryOnError, (val) => {
     if (config.retryOnError !== val) {
       config.retryOnError = val;
+      emitConfigUpdate();
+    }
+  });
+  watch(() => props.maxRetryError, (val) => {
+    if (config.maxRetryError !== val) {
+      config.maxRetryError = val;
       emitConfigUpdate();
     }
   });

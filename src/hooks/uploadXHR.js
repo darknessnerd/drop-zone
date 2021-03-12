@@ -9,6 +9,13 @@ export default function useUploadXHR({ config, items }) {
       .forEach((item) => {
         // eslint-disable-next-line no-param-reassign
         item.status = STATUS.ERROR;
+        if (!item.upload.retryErrorCounter) {
+          // eslint-disable-next-line no-param-reassign
+          item.upload.retryErrorCounter = config.maxRetryError;
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          item.upload.retryErrorCounter -= 1;
+        }
         idsWithError.push(item.id);
       });
     onError(idsWithError, { errorType: e.type });
@@ -189,17 +196,20 @@ export default function useUploadXHR({ config, items }) {
 
   const upload = (files, onFinish, onError) => {
     const uploadId = uuidv4();
-    console.log(`try to upload ${uploadId}`);
+    console.debug(`start an upload with id: ${uploadId}`);
     let needUpload = false;
     for (let i = 0; i < files.length; i += 1) {
       const item = files[i];
-      if (item.status === STATUS.QUEUED || (config.retryOnError && item.status === STATUS.ERROR)) {
+      if (item.status === STATUS.QUEUED
+        || (config.retryOnError
+            && item.status === STATUS.ERROR
+            && item.upload.retryErrorCounter > 0)) {
         item.upload.id = uploadId;
         needUpload = true;
       }
     }
     if (!needUpload) {
-      console.warn('Nothing to upload !');
+      console.debug('Nothing to upload !');
       return;
     }
     makeRequest(uploadId, files, onFinish, onError);

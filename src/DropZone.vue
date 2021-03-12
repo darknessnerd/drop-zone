@@ -3,25 +3,31 @@
     <div v-if="ids.length === 0" class="dropzone__message">
       <slot name="message">Drop here</slot>
     </div>
-    <div v-for="(item, itemId) in all" :key="itemId"
-         class="dropzone__preview"
+    <div class="dropzone__item" v-for="(item, itemId) in all" :key="itemId"
          :class="{
-            'dropzone__preview-file': !item.thumbnail,
-            'dropzone__preview-image': item.thumbnail,
+            'dropzone--has-thumbnail': !!item.thumbnail,
             'dropzone--added': item.status === 'ADDED',
             'dropzone--processing': item.status === 'UPLOADING',
             'dropzone--success': item.status === 'DONE',
-            'dropzone--error': item.status === 'ERROR',
+            'dropzone--has-error': item.status === 'ERROR',
             }">
-      <div class="dropzone-image" >
-        <img v-if="item.thumbnail" style="width:100%; height:auto;" :src="item.thumbnail">
+      <div class="dropzone__item-thumbnail" >
+        <img v-if="item.thumbnail"  :src="item.thumbnail">
+      </div>
+      <div class="dropzone__item-controls">
+        <div class="dropzone__item-control" @click="removeFile(itemId)">
+          <slot name="remove"><i class="gg-close"></i></slot>
+        </div>
       </div>
       <div class="dropzone__progress">
         <progress class="dropzone__progress-bar" max="100" :value.prop="item.upload.progress"/>
       </div>
-      <div class="dropzone__success-mark"><i class="gg-check-o"></i></div>
-      <div class="dropzone__error-mark"><i class="gg-danger"></i></div>
-      <div class="dropzone__controls"><i @click="removeFile(itemId)" class="gg-close"></i></div>
+      <div class="dropzone__success-mark">
+        <slot name="success"><i class="gg-check-o"></i></slot>
+      </div>
+      <div class="dropzone__error-mark">
+        <slot name="error"><i class="gg-danger"></i></slot>
+      </div>
       <div class="dropzone__details">
         <div class="dropzone__file-size" >
           <span v-html="filesize(item.file.size)"></span>
@@ -36,7 +42,7 @@
 </template>
 <script>
 import {
-  defineComponent, onMounted, onUnmounted, ref, toRefs,
+  defineComponent, onMounted, onUnmounted, ref, toRefs, watch, nextTick,
 } from 'vue';
 import { determineDragAndDropCapable, filesize } from '@/utils';
 import useDragAndDrop from '@/hooks/drag';
@@ -45,10 +51,9 @@ import dropzoneProps from '@/props';
 import useConfig from '@/hooks/config';
 import useItemManager from '@/hooks/itemManager';
 
-// TODO - retry policy
 // TODO - disable
 // TODO - Understand capture
-// TODO - add slot for inputs to be sent with the request
+// TODO - add interceptor when create a form for upload to be sent with the request
 export default defineComponent({
   name: 'DropZone',
   emits: ['config-update', 'added-file', 'removed-file', 'error-upload', 'uploaded'],
@@ -86,15 +91,28 @@ export default defineComponent({
       itemManager,
     });
 
+    // If the items list is empty we need to re-create the hidden file input.
+    watch(
+      () => itemManager.getItems(),
+      (val) => {
+        if (val.ids.length === 0) {
+          nextTick(() => {
+            destroyHiddenFileInput();
+            initHiddenFileInput({
+              config, dropzone, itemManager,
+            });
+          });
+        }
+      },
+      { deep: true },
+    );
     onMounted(() => {
-      console.debug('onMounted');
       dragAndDropCapable.value = determineDragAndDropCapable();
       initHiddenFileInput({
         config, dropzone, itemManager,
       });
     });
     onUnmounted(() => {
-      console.debug('onUnmounted');
       destroyHiddenFileInput();
     });
     return {

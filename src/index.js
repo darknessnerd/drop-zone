@@ -1,4 +1,4 @@
-import '@/assets/basic.scss';
+import '@/assets/main.scss';
 import DropZone from '@/DropZone.vue';
 
 const install = (Vue) => {
