@@ -20,7 +20,7 @@ export default function useUploadXHR({ config, items }) {
       });
     onError(idsWithError, { errorType: e.type });
   };
-  const uploadChunck = (chunkStart, sliceSize, item, reader, onFinish, onError, uploadId) => {
+  const uploadChunck = (chunkStart, sliceSize, item, reader, onFinish, onError, onSending, uploadId) => {
     const nextSlice = chunkStart + sliceSize + 1;
     const blob = item.file.webkitSlice
       ? item.file.webkitSlice(chunkStart, nextSlice)
@@ -43,7 +43,7 @@ export default function useUploadXHR({ config, items }) {
       // eslint-disable-next-line no-param-reassign
       item.upload.reader = reader;
       // eslint-disable-next-line no-use-before-define
-      makeRequest(uploadId, [item], onFinish, onError);
+      makeRequest(uploadId, [item], onFinish, onError, onSending);
     };
     reader.readAsDataURL(blob);
   };
@@ -68,7 +68,7 @@ export default function useUploadXHR({ config, items }) {
         });
     }
   };
-  const makeRequest = (uploadId, files, onFinish, onError) => {
+  const makeRequest = async (uploadId, files, onFinish, onError, onSending) => {
     const xhr = new XMLHttpRequest();
     xhr.open(config.method, config.url, true);
     xhr.timeout = config.xhrTimeout;
@@ -177,9 +177,12 @@ export default function useUploadXHR({ config, items }) {
         }
       }
     };
+
+    await onSending(Object.values(files)
+      .filter((item) => item.upload.id === uploadId), xhr, formData);
     xhr.send(formData);
   };
-  const uploadWithChunking = (item, onFinish, onError) => {
+  const uploadWithChunking = (item, onFinish, onError, onSending) => {
     const uploadId = uuidv4();
     console.log(`try to uploadWithChunking ${uploadId}`);
     // eslint-disable-next-line no-param-reassign
@@ -191,10 +194,10 @@ export default function useUploadXHR({ config, items }) {
     const reader = new FileReader();
     // TODO - define the size of the chunks
     const sliceSize = (item.file.size / config.numberOfChunks);
-    uploadChunck(0, sliceSize, item, reader, onFinish, onError, uploadId);
+    uploadChunck(0, sliceSize, item, reader, onFinish, onError, onSending, uploadId);
   };
 
-  const upload = (files, onFinish, onError) => {
+  const upload = (files, onFinish, onError, onSending) => {
     const uploadId = uuidv4();
     console.debug(`start an upload with id: ${uploadId}`);
     let needUpload = false;
@@ -212,7 +215,7 @@ export default function useUploadXHR({ config, items }) {
       console.debug('Nothing to upload !');
       return;
     }
-    makeRequest(uploadId, files, onFinish, onError);
+    makeRequest(uploadId, files, onFinish, onError, onSending);
   };
   return { upload, uploadWithChunking };
 }

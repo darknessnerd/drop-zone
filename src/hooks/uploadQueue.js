@@ -35,6 +35,9 @@ export default function useUploadQueue({
       console.debug('processQueue is empty');
       return;
     }
+    const sending = (uploadedItems, xhr, formData) => {
+      context.emit('sending', readonly(uploadedItems.map((item) => item.file)), xhr, formData);
+    };
     const triggerProcessQueue = (uploadedItems) => {
       if (config.autoUpload) {
         processQueue();
@@ -50,17 +53,18 @@ export default function useUploadQueue({
     let i = currentProcessing;
     console.debug(`start to processQueue for ${config.parallelUpload - i} items`);
     if (config.chunking) {
-      uploadWithChunking(queuedFiles.shift(), triggerProcessQueue, onError);
+      uploadWithChunking(queuedFiles.shift(), triggerProcessQueue, onError, sending);
     } else if (config.multipleUpload) {
       upload(queuedFiles.slice(0, config.parallelUpload - currentProcessing),
         triggerProcessQueue,
-        onError);
+        onError,
+        sending);
     } else {
       while (i <= config.parallelUpload) {
         if (queuedFiles.length <= 0) {
           return;
         }
-        upload([queuedFiles.shift()], triggerProcessQueue, onError);
+        upload([queuedFiles.shift()], triggerProcessQueue, onError, sending);
         i += 1;
       }
     }

@@ -53,10 +53,16 @@ import useItemManager from '@/hooks/itemManager';
 
 // TODO - disable
 // TODO - Understand capture
-// TODO - add interceptor when create a form for upload to be sent with the request
 export default defineComponent({
   name: 'DropZone',
-  emits: ['config-update', 'added-file', 'removed-file', 'error-upload', 'uploaded'],
+  emits: [
+    'config-update',
+    'added-file',
+    'removed-file',
+    'error-upload',
+    'uploaded',
+    'sending',
+  ],
   props: {
     ...dropzoneProps,
   },

@@ -43,11 +43,21 @@ const Template = (args) => ({
     const onUploaded = (items) => {
       console.log(items);
     };
+    const sending = (files, xhr, formData) => {
+      console.log(files, xhr, formData);
+      formData.set('timestamp', new Date().getTime());
+    };
     const onError = (error) => {
       console.log(error);
     };
     return {
-      args, ...toRefs(config), onUpdateConfig, onEventFile, onError, onUploaded,
+      args,
+      ...toRefs(config),
+      onUpdateConfig,
+      onEventFile,
+      onError,
+      onUploaded,
+      sending,
     };
   },
   // And then the `args` are bound to your component with `v-bind="args"`
@@ -65,6 +75,7 @@ DevStory.args = {
     + 'v-on:addedFile="onEventFile" '
     + 'v-on:removedFile="onEventFile" '
     + 'v-on:errorUpload="onError" '
+    + 'v-on:sending="sending" '
     + 'v-on:uploaded="onUploaded" '
     + ':parallelUpload="Number(dropZone.parallelUpload)" '
     + ':multipleUpload="dropZone.multipleUpload" '
