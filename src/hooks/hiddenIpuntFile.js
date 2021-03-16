@@ -41,7 +41,6 @@ export default function useHiddenInputFile() {
     if (config.accepts.length > 0) {
       hiddenFileInput.setAttribute('accept', config.accepts.join(','));
     }
-    // TODO - caputure
     // Make sure that no one can tab in this input field.
     hiddenFileInput.setAttribute('tabindex', '-1');
     hiddenFileInput.style.visibility = 'hidden';

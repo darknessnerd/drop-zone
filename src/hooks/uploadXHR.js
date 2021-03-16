@@ -20,7 +20,16 @@ export default function useUploadXHR({ config, items }) {
       });
     onError(idsWithError, { errorType: e.type });
   };
-  const uploadChunck = (chunkStart, sliceSize, item, reader, onFinish, onError, onSending, uploadId) => {
+  const uploadChunck = (
+    chunkStart,
+    sliceSize,
+    item,
+    reader,
+    onFinish,
+    onError,
+    onSending,
+    uploadId,
+  ) => {
     const nextSlice = chunkStart + sliceSize + 1;
     const blob = item.file.webkitSlice
       ? item.file.webkitSlice(chunkStart, nextSlice)
@@ -156,7 +165,7 @@ export default function useUploadXHR({ config, items }) {
                   item.upload.nextSlice,
                   item.upload.sliceSize,
                   item,
-                  item.upload.reader, onFinish, onError,
+                  item.upload.reader, onFinish, onError, onSending,
                   item.upload.id,
                 );
               } else {

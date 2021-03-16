@@ -11,7 +11,7 @@ export default {
   },
   xhrTimeout: {
     type: Number,
-    default: 6000,
+    default: 60000,
     validator: (val) => val >= 0,
   },
   withCredentials: {
@@ -46,7 +46,7 @@ export default {
    */
   uploadOnDrop: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   /**
    * Retry an upload if it fail, TODO - the policy need to be implemented

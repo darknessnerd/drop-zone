@@ -3,7 +3,7 @@ import './assets/custom.scss';
 import controls from './controls';
 
 export default {
-  title: 'DropZone/basic',
+  title: 'DropZone/upload',
   component: DropZone,
   decorators: [() => (
     { template: '<div style="flex-grow: 1;"><story/></div>' }
@@ -26,7 +26,12 @@ BasicUploadStory.argTypes = {
   ...controls,
 };
 BasicUploadStory.args = {
-  template: '<DropZone />',
+  template: '<DropZone maxFiles="10000000000"'
+    + ' url="http://localhost:5000/item" '
+    + '>'
+    + '<template v-slot:message><p>Drop here!!!</p><br>Selected files are <b>not uploaded</b>.'
+    + '<br>(This is just a demo!)</template>'
+    + '</DropZone>',
 };
 
 export const AutoRetryOnErrorStory = Template.bind({});
@@ -36,7 +41,12 @@ AutoRetryOnErrorStory.argTypes = {
 };
 AutoRetryOnErrorStory.args = {
   uploadOnError: true,
-  template: '<DropZone :retryOnError="args.retryOnError"/>',
+  template: '<DropZone maxFiles="10000000000"'
+    + ' url="http://localhost:5000/item" '
+    + '>'
+    + '<template v-slot:message><p>Drop here!!!</p><br>Selected files are <b>not uploaded</b>.'
+    + '<br>(This is just a demo!)</template>'
+    + '</DropZone>',
 };
 
 export const AutoUploadOnDrop = Template.bind({});
@@ -46,5 +56,10 @@ AutoUploadOnDrop.argTypes = {
 };
 AutoUploadOnDrop.args = {
   uploadOnDrop: true,
-  template: '<DropZone :uploadOnDrop="args.uploadOnDrop"/>',
+  template: '<DropZone maxFiles="10000000000"'
+    + ' url="http://localhost:5000/item" '
+    + '>'
+    + '<template v-slot:message><p>Drop here!!!</p><br>Selected files are <b>not uploaded</b>.'
+    + '<br>(This is just a demo!)</template>'
+    + '</DropZone>',
 };

@@ -1,7 +1,9 @@
 import DropZone from '@/index';
 import './assets/custom.scss';
-import { reactive, toRefs } from 'vue';
+import { reactive, toRefs, ref } from 'vue';
+import { rest } from 'msw';
 import controls from './controls';
+import { worker } from '../mocks/browser';
 
 export default {
   title: 'DropZone/dev',
@@ -20,6 +22,7 @@ const Template = (args) => ({
   components: { DropZone },
   // The story's `args` need to be mapped into the template through the `setup()` method
   setup() {
+    const dropZoneRef = ref();
     const config = reactive(
       {
         dropZone: {
@@ -50,6 +53,9 @@ const Template = (args) => ({
     const onError = (error) => {
       console.log(error);
     };
+    const uploadAction = () => {
+      dropZoneRef.value.processQueue();
+    };
     return {
       args,
       ...toRefs(config),
@@ -58,6 +64,8 @@ const Template = (args) => ({
       onError,
       onUploaded,
       sending,
+      dropZoneRef,
+      uploadAction,
     };
   },
   // And then the `args` are bound to your component with `v-bind="args"`
@@ -68,15 +76,34 @@ export const DevStory = Template.bind({});
 DevStory.argTypes = {
   ...controls,
 };
+DevStory.decorators = [
+  () => {
+    worker.use(
+      rest.post('http://localhost:5000/item', (req, res, ctx) =>
+        // Mock an infinite loading state.
+        res(
+          ctx.status(500),
+          ctx.delay(1000),
+        )),
+    );
+    return {
+      template: '<div style="flex-grow: 1;">'
+    + '<story/>'
+    + '</div>',
+    };
+  },
+];
+
 DevStory.args = {
   template: '<DropZone '
-    + 'v-on:configUpdate="onUpdateConfig" '
+    + ' ref="dropZoneRef" '
     + ':uploadOnDrop="dropZone.uploadOnDrop" '
     + 'v-on:addedFile="onEventFile" '
     + 'v-on:removedFile="onEventFile" '
     + 'v-on:errorUpload="onError" '
     + 'v-on:sending="sending" '
     + 'v-on:uploaded="onUploaded" '
+    + 'v-on:configUpdate="onUpdateConfig" '
     + ':parallelUpload="Number(dropZone.parallelUpload)" '
     + ':multipleUpload="dropZone.multipleUpload" '
     + ':retryOnError="dropZone.retryOnError" '
@@ -85,16 +112,17 @@ DevStory.args = {
     + ' url="http://localhost:5000/item" '
     + ' :maxFiles="Number(dropZone.maxFiles)" '
     + ' :withCredentials="false" '
-    + ' :xhrTimeout="2000" '
+    + ' :xhrTimeout="60000" '
     + ' :headers="dropZone.customHeaders" '
     + ':acceptedFiles="[\'pdf\', \'image\', \'exe\', \'zip\']" '
     + '> '
-    + ' <template v-slot:message><p>Drop here!!!</p></template>'
+    + ' <template v-slot:message><p>Drop here!!!</p><br>Selected files are <b>not uploaded</b>. <br>(This is just a demo!)</template>'
   //    + ' <template v-slot:remove>x</template>'
   //  + ' <template v-slot:error><div>ERRORE</div></template>'
   //  + ' <template v-slot:success><div>ok</div></template>'
     + '</DropZone>'
     + ''
+    + '<button @click="uploadAction">upload</button>'
     + ''
     + '<div> '
     + '<div> auto upload on drop: <input type="checkbox" v-model="dropZone.uploadOnDrop"></div>'

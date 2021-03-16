@@ -38,7 +38,6 @@
       </div>
     </div>
   </form>
-  <button @click="processQueue">upload</button>
 </template>
 <script>
 import {
