@@ -29,7 +29,6 @@ const getElement = (el, name) => {
 };
 const getAllDescendants = (el) => {
   const elements = [];
-  console.log(el.children);
   if (el.nodeType !== null) {
     Object.values(el.children).forEach((node) => {
       elements.push(node);

@@ -80,6 +80,6 @@
     "vue-loader": "^16.1.2"
   },
   "msw": {
-    "workerDirectory": "stories\\assets"
+    "workerDirectory": "docs"
   }
 }
