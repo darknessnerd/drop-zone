@@ -124,7 +124,7 @@ ErrorIcon.args = {
     + '<br>Selected files are <b>not uploaded</b>.'
     + '<br>(This is just a demo!)</template>'
     + '<template v-slot:error>'
-    + '<img src="./apocalypse.svg" style="color: red; cursor: pointer; height: 18px; width: 18px;" />'
+    + '<img src="./apocalypse.svg" cursor: pointer; height: 18px; width: 18px;" />'
     + '</template>'
     + '</DropZone>',
 };
