@@ -8,5 +8,10 @@ app.use(Dropdown);
 
 if (typeof global.process === 'undefined') {
   const { worker } = require('../mocks/browser')
-  worker.start()
+  worker.start({
+    serviceWorker: {
+      // Points to the custom location of the Service Worker file.
+      url: 'https://darknessnerd.github.io/drop-zone/mockServiceWorker.js'
+    }
+  })
 }
