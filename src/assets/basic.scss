@@ -5,7 +5,7 @@
 .dropzone, .dropzone * {
   box-sizing: border-box;
 }
-.dropzone {
+.dropzone__box  {
   position: relative;
   display: flex;
   flex-flow: row wrap;
@@ -13,22 +13,40 @@
   border: 2px dashed #03A062;
   border-radius: 4px;
   padding: 4px;
-  // Class for the div that
-  // contain the message when
-  // the items array is empty
-  &__message {
+}
+// Class for the div that
+// contain the message when
+// the items array is empty
+.dropzone__message--style {
     flex-grow: 1;
     text-align: center;
-  }
+}
+.dropzone__details--style {
+  padding: 2em 1em;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.9);
+  font-size: 13px;
+  line-height: 150%;
+  width: 64px;
+  min-width: 100%;
+  max-width: 100%;
+}
+.dropzone__item--style:not(.dropzone--has-thumbnail) > .dropzone__item-thumbnail {
+  border-radius: 12px;
+  border: solid 1px black;
+}
+.dropzone__item--style {
+  margin: auto auto;
+  padding: 4px;
+}
+.dropzone {
   // Item element
+  &__item:hover {
+    z-index: 1000;
+  }
   &__item {
     position: relative;
     display: inline-block;
-    margin: auto auto;
-    padding: 4px;
-  }
-  &__item:hover {
-    z-index: 1000;
   }
   // Error and success mark
   &__error-mark, &__success-mark{
@@ -37,11 +55,8 @@
     z-index: 500;
     position: absolute;
     display: block;
-    top: 0;
-    right: 0;
-    padding: 4px;
-    height: var(--preview-size);
-    width: var(--preview-size);
+    top: 8px;
+    left: 8px;
   }
   &--has-error > .dropzone__error-mark > * {
     display: block;
@@ -86,18 +101,13 @@
   &__item:not(.dropzone--has-thumbnail) > .dropzone__details {
     opacity: 1;
   }
-  &__item:not(.dropzone--has-thumbnail) > .dropzone__item-thumbnail {
-    border-radius: 24px;
-    background: #999;
-    background: linear-gradient(to bottom, #eee, #ddd);
-  }
   &--has-thumbnail:hover > .dropzone__details {
     opacity: 1;
   }
   &--has-thumbnail > .dropzone__item-thumbnail > img {
     display: block;
-    width: var(--preview-size);
-    height: var(--preview-size);
+    width: 100%;
+    height: auto;
   }
   &--has-thumbnail > .dropzone__details {
     -webkit-transition: opacity 0.2s linear;
@@ -125,8 +135,8 @@
     position: absolute;
     z-index: 10000;
     border-radius: 4px;
-    top: 2px;
-    right: 2px;
+    top: 8px;
+    right: 8px;
     .dropzone__item-control {
       cursor: pointer;
     }
@@ -169,24 +179,13 @@
   border: 1px solid transparent;
 }
 
-
-
 .dropzone__details {
   z-index: 20;
   position: absolute;
   top: 0;
   left: 0;
   opacity: 0;
-  font-size: 13px;
-  min-width: 100%;
-  max-width: 100%;
-  padding: 2em 1em;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.9);
-  line-height: 150%;
 }
-
-
 
 .dropzone__progress {
   opacity: 1;

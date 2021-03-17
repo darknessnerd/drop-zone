@@ -1,4 +1,31 @@
 export default {
+  /**
+   * Upload url, if null it will set the window location
+   */
+  url: {
+    type: String,
+    default: null,
+    validator: (val) => {
+      if (val === null) return true;
+      try {
+        return new URL(val) !== undefined;
+      } catch {
+        return false;
+      }
+    },
+  },
+  /**
+   * Upload xhr method can be post or put
+   */
+  method: {
+    type: String,
+    default: 'POST',
+    validator: (val) => val.toUpperCase() === 'POST' || val.toUpperCase() === 'PUT',
+  },
+  paramName: {
+    type: String,
+    default: 'file',
+  },
   headers: {
     type: Object,
     default: null,
@@ -19,29 +46,6 @@ export default {
     default: false,
   },
   /**
-   * Upload xhr method can be post or put
-   */
-  method: {
-    type: String,
-    default: 'POST',
-    validator: (val) => val.toUpperCase() === 'POST' || val.toUpperCase() === 'PUT',
-  },
-  /**
-   * Upload url, if null it will set the window location
-   */
-  url: {
-    type: String,
-    default: null,
-    validator: (val) => {
-      if (val === null) return true;
-      try {
-        return new URL(val) !== undefined;
-      } catch {
-        return false;
-      }
-    },
-  },
-  /**
    * Auto upload on drop item or select items form hiddent input
    */
   uploadOnDrop: {
@@ -49,7 +53,7 @@ export default {
     default: true,
   },
   /**
-   * Retry an upload if it fail, TODO - the policy need to be implemented
+   * Retry an upload if it fail
    */
   retryOnError: {
     type: Boolean,
@@ -82,8 +86,7 @@ export default {
    */
   maxFileSize: {
     type: Number,
-    // default: 1000000, 1mb
-    default: 67157309,
+    default: 1000000,
   },
   /**
    * Element or query selector where the hidden Input it's placed

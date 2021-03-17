@@ -1,16 +1,21 @@
 <template>
-  <form class="dropzone" ref="dropzone" @drop="onDrop" @dragover="handleDragOver">
-    <div v-if="ids.length === 0" class="dropzone__message">
+  <form ref="dropzone"
+        class="dropzone"
+        :class="[dropzoneClassName]"
+        @drop="onDrop"
+        @dragover="handleDragOver">
+    <div v-if="ids.length === 0" class="dropzone__message" :class="[dropzoneMessageClassName]">
       <slot name="message">Drop here</slot>
     </div>
-    <div class="dropzone__item" v-for="(item, itemId) in all" :key="itemId"
-         :class="{
+    <div class="dropzone__item"
+         v-for="(item, itemId) in all" :key="itemId"
+         :class="[{
             'dropzone--has-thumbnail': !!item.thumbnail,
             'dropzone--added': item.status === 'ADDED',
             'dropzone--processing': item.status === 'UPLOADING',
             'dropzone--success': item.status === 'DONE',
             'dropzone--has-error': item.status === 'ERROR',
-            }">
+            }, dropzoneItemClassName]">
       <div class="dropzone__item-thumbnail" >
         <img v-if="item.thumbnail"  :src="item.thumbnail">
       </div>
@@ -28,7 +33,7 @@
       <div class="dropzone__error-mark">
         <slot name="error"><i class="gg-danger"></i></slot>
       </div>
-      <div class="dropzone__details">
+      <div class="dropzone__details" :class="[dropzoneDetailsClassName]">
         <div class="dropzone__file-size" >
           <span v-html="filesize(item.file.size)"></span>
         </div>
@@ -50,6 +55,8 @@ import dropzoneProps from '@/props';
 import useConfig from '@/hooks/config';
 import useItemManager from '@/hooks/itemManager';
 
+// TODO - custom style for progress bar
+// TODO - custom style for name and size
 // TODO - disable
 // TODO - Understand capture
 export default defineComponent({
@@ -64,6 +71,18 @@ export default defineComponent({
   ],
   props: {
     ...dropzoneProps,
+    dropzoneClassName: {
+      default: 'dropzone__box',
+    },
+    dropzoneMessageClassName: {
+      default: 'dropzone__message--style',
+    },
+    dropzoneItemClassName: {
+      default: 'dropzone__item--style',
+    },
+    dropzoneDetailsClassName: {
+      default: 'dropzone__details--style',
+    },
   },
   setup(props, context) {
     const dropzone = ref();
@@ -106,6 +125,17 @@ export default defineComponent({
             initHiddenFileInput({
               config, dropzone, itemManager,
             });
+          });
+        }
+      },
+      { deep: true },
+    );
+    watch(
+      () => props.clickable,
+      (val) => {
+        if (!val) {
+          nextTick(() => {
+            destroyHiddenFileInput();
           });
         }
       },

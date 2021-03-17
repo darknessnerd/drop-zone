@@ -113,17 +113,18 @@ export default function useUploadXHR({ config, items }) {
 
     // Append to formData
     const formData = new FormData();
-    // TODO - add input values from the form
+    await onSending(Object.values(files)
+      .filter((item) => item.upload.id === uploadId), xhr, formData);
     for (let i = 0; i < files.length; i += 1) {
       const item = files[i];
       if (item.upload.id === uploadId) {
         if (!item.upload.chunking) {
-          formData.append('file', item.file, item.file.name);
+          formData.append(config.paramName, item.file, item.file.name);
         } else {
           formData.set('fileName', item.file.name);
           // 1 based chunk order index
           formData.set('chunkIndex', item.upload.chunkIndex);
-          formData.set('file', item.upload.blob, item.file.name);
+          formData.set(config.paramName, item.upload.blob, item.file.name);
         }
         // eslint-disable-next-line no-param-reassign
         item.status = STATUS.UPLOADING;
@@ -186,9 +187,6 @@ export default function useUploadXHR({ config, items }) {
         }
       }
     };
-
-    await onSending(Object.values(files)
-      .filter((item) => item.upload.id === uploadId), xhr, formData);
     xhr.send(formData);
   };
   const uploadWithChunking = (item, onFinish, onError, onSending) => {

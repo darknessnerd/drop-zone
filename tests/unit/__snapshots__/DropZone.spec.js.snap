@@ -15,22 +15,19 @@ VueWrapper {
     "_container": <div
       data-v-app=""
     >
-      
       <form
-        class="dropzone dropzone-clickable"
+        class="dropzone dropzone__box dropzone-clickable"
       >
         <div
-          class="dropzone__message dropzone-clickable"
+          class="dropzone__message dropzone__message--style dropzone-clickable"
         >
+          
           Drop here
+          
         </div>
         
         
       </form>
-      <button>
-        upload
-      </button>
-      
     </div>,
     "_context": Object {
       "app": [Circular],
@@ -94,35 +91,42 @@ VueWrapper {
     "chunking": false,
     "clickable": true,
     "dropzone": <form
-      class="dropzone dropzone-clickable"
+      class="dropzone dropzone__box dropzone-clickable"
     >
       <div
-        class="dropzone__message dropzone-clickable"
+        class="dropzone__message dropzone__message--style dropzone-clickable"
       >
+        
         Drop here
+        
       </div>
       
       
     </form>,
+    "dropzoneClassName": "dropzone__box",
+    "dropzoneDetailsClassName": "dropzone__details--style",
+    "dropzoneItemClassName": "dropzone__item--style",
+    "dropzoneMessageClassName": "dropzone__message--style",
     "filesize": [Function],
     "handleDragOver": [Function],
     "headers": null,
     "hiddenInputContainer": "body",
     "ids": Array [],
-    "maxFileSize": 67157309,
+    "maxFileSize": 1000000,
     "maxFiles": null,
     "method": "POST",
     "multipleUpload": false,
     "numberOfChunks": 10,
     "onDrop": [Function],
     "parallelUpload": 3,
+    "paramName": "file",
     "processQueue": [Function],
     "removeFile": [Function],
     "retryOnError": false,
-    "uploadOnDrop": false,
+    "uploadOnDrop": true,
     "url": null,
     "withCredentials": false,
-    "xhrTimeout": 6000,
+    "xhrTimeout": 60000,
   },
   "rootVM": Object {},
 }

@@ -7,6 +7,7 @@ import mineTypes from '@/utils/minetypes';
 export default function useConfig({ props, context, setMultiple }) {
   // Dropbox reactive config
   const config = reactive({
+    paramName: props.paramName,
     headers: props.headers,
     xhrTimeout: props.xhrTimeout,
     withCredentials: props.withCredentials,
@@ -53,6 +54,12 @@ export default function useConfig({ props, context, setMultiple }) {
   createAcceptsArray();
   emitConfigUpdate();
   // Watch on props changes
+  watch(() => props.paramName, (val) => {
+    if (config.paramName !== val) {
+      config.paramName = val;
+      emitConfigUpdate();
+    }
+  });
   watch(() => props.acceptedFiles, (val) => {
     if (!config.acceptedFiles.every((accept) => val.includes(accept))) {
       config.acceptedFiles = [...val];
