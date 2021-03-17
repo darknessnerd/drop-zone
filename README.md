@@ -8,7 +8,7 @@
 ![npm collaborators](https://img.shields.io/npm/collaborators/drop-zone)
 
 :bomb:<br>
-[Features Live Demo Link: Click here !! ](https://darknessnerd.github.io/drop-box/index.html)
+[Features Live Demo Link: Click here !! ](https://darknessnerd.github.io/drop-zone/index.html)
 
 > Vue3 Library Component for drag’n’drop file uploads with image previews.
 
