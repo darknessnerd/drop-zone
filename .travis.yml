@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+  - stable
+  - lts/*
+cache:
+  directories:
+    - node_modules
+script:
+  - npm run lint
+  - npm run test:unit
+before_deploy:
+  - npm run build
+deploy:
+  provider: npm
+  email: "$NPM_EMAIL"
+  api_key: "$NPM_TOKEN"
+  skip_cleanup: true
+  on:
+    tags: true
+
