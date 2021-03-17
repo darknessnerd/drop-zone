@@ -48,7 +48,6 @@ const Template = (args) => ({
       dropZoneRef,
     };
   },
-  // And then the `args` are bound to your component with `v-bind="args"`
   template: args.template,
 });
 
