@@ -2,6 +2,24 @@
   "name": "drop-zone",
   "version": "0.1.0",
   "private": false,
+  "author": "Brunino Criniti <crinitib@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/darknessnerd/drop-zone.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/darknessnerd/drop-zone/issues"
+  },
+  "homepage": "https://github.com/darknessnerd/drop-zone",
+  "keywords": [
+    "vue3",
+    "upload",
+    "chunking",
+    "drag'n'drop",
+    "file"
+  ],
+  "description": "Vue3 Library Component for drag’n’drop file uploads with image previews..",
   "main": "dist/drop-zone.common.js",
   "unpkg": "dist/drop-zone.umd.min.js",
   "files": [
