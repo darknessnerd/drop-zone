@@ -390,3 +390,18 @@ Called when a file is going to be uploaded.
 ```html
 <DropZone @errorUpload="onErrorUpload">
 ```
+
+#### error-add
+
+Parameters:
+* `files` Array(File)
+* `error` String {'INVALID_TYPE'|'MAX_FILE'|'MAX_FILE_SIZE'}
+
+Called when a file is not added for one of this reason 
+* invalid type
+* max file size 
+* max file number inside the dropzone
+
+```html
+<DropZone @errorAdd="onError">
+```

@@ -50,7 +50,116 @@ const Template = (args) => ({
   },
   template: args.template,
 });
+export const OnAddErrorMaxFile = Template.bind({});
+OnAddErrorMaxFile.argTypes = {
+  ...controls,
+  'error-add': { action: 'error-add' },
+};
+OnAddErrorMaxFile.decorators = [
+  () => {
+    worker.use(
+      rest.post('http://localhost:5000/item', (req, res, ctx) =>
+        // Mock an infinite loading state.
+        res(
+          ctx.status(200),
+          ctx.delay(0),
+        )),
+    );
+    return {
+      template: '<div style="flex-grow: 1;">'
+        + '<story/>'
+        + '</div>',
+    };
+  },
+];
 
+OnAddErrorMaxFile.args = {
+  template: '<DropZone '
+    + ' ref="dropZoneRef" '
+    + ':uploadOnDrop="dropZone.uploadOnDrop" '
+    + 'v-on:errorAdd="args[\'error-add\']" '
+    + ':parallelUpload="Number(dropZone.parallelUpload)" '
+    + ':multipleUpload="dropZone.multipleUpload" '
+    + ':retryOnError="dropZone.retryOnError" '
+    + ':chunking="dropZone.chunking" '
+    + ':numberOfChunks="dropZone.numberOfChunks" '
+    + ' url="http://localhost:5000/item" '
+    + ' :maxFiles="Number(0)" '
+    + ' :maxFileSize="1000000000000000000"'
+    + ' :withCredentials="false" '
+    + ' :xhrTimeout="60000" '
+    + ' :headers="dropZone.customHeaders" '
+    + '> '
+    + ' <template v-slot:message><p>Drop here!!!</p><br>Selected files are <b>not uploaded</b>. <br>(This is just a demo!)</template>'
+    //    + ' <template v-slot:remove>x</template>'
+    //  + ' <template v-slot:error><div>ERRORE</div></template>'
+    //  + ' <template v-slot:success><div>ok</div></template>'
+    + '</DropZone>'
+    + ''
+    + '<div> '
+    + '<div> auto upload on drop: <input type="checkbox" v-model="dropZone.uploadOnDrop"></div>'
+    + '<div> parallel upload: <input type="number" v-model="dropZone.parallelUpload"></div>'
+    + '<div> multiple upload: <input type="checkbox" v-model="dropZone.multipleUpload"></div>'
+    + '<div> chunking: <input type="checkbox" v-model="dropZone.chunking"></div>'
+    + '<div> retryOnError: <input type="checkbox" v-model="dropZone.retryOnError"></div>'
+    + '<div> maxFiles: <input type="number" v-model="dropZone.maxFiles"></div>'
+    + '</div>',
+};
+export const OnAddErrorMaxFileSize = Template.bind({});
+OnAddErrorMaxFileSize.argTypes = {
+  ...controls,
+  'error-add': { action: 'error-add' },
+};
+OnAddErrorMaxFileSize.decorators = [
+  () => {
+    worker.use(
+      rest.post('http://localhost:5000/item', (req, res, ctx) =>
+        // Mock an infinite loading state.
+        res(
+          ctx.status(200),
+          ctx.delay(0),
+        )),
+    );
+    return {
+      template: '<div style="flex-grow: 1;">'
+        + '<story/>'
+        + '</div>',
+    };
+  },
+];
+
+OnAddErrorMaxFileSize.args = {
+  template: '<DropZone '
+    + ' ref="dropZoneRef" '
+    + ':uploadOnDrop="dropZone.uploadOnDrop" '
+    + 'v-on:errorAdd="args[\'error-add\']" '
+    + ':parallelUpload="Number(dropZone.parallelUpload)" '
+    + ':multipleUpload="dropZone.multipleUpload" '
+    + ':retryOnError="dropZone.retryOnError" '
+    + ':chunking="dropZone.chunking" '
+    + ':numberOfChunks="dropZone.numberOfChunks" '
+    + ' url="http://localhost:5000/item" '
+    + ' :maxFiles="Number(1)" '
+    + ' :maxFileSize="1"'
+    + ' :withCredentials="false" '
+    + ' :xhrTimeout="60000" '
+    + ' :headers="dropZone.customHeaders" '
+    + '> '
+    + ' <template v-slot:message><p>Drop here!!!</p><br>Selected files are <b>not uploaded</b>. <br>(This is just a demo!)</template>'
+    //    + ' <template v-slot:remove>x</template>'
+    //  + ' <template v-slot:error><div>ERRORE</div></template>'
+    //  + ' <template v-slot:success><div>ok</div></template>'
+    + '</DropZone>'
+    + ''
+    + '<div> '
+    + '<div> auto upload on drop: <input type="checkbox" v-model="dropZone.uploadOnDrop"></div>'
+    + '<div> parallel upload: <input type="number" v-model="dropZone.parallelUpload"></div>'
+    + '<div> multiple upload: <input type="checkbox" v-model="dropZone.multipleUpload"></div>'
+    + '<div> chunking: <input type="checkbox" v-model="dropZone.chunking"></div>'
+    + '<div> retryOnError: <input type="checkbox" v-model="dropZone.retryOnError"></div>'
+    + '<div> maxFiles: <input type="number" v-model="dropZone.maxFiles"></div>'
+    + '</div>',
+};
 export const SuccessEmitsFlow = Template.bind({});
 SuccessEmitsFlow.argTypes = {
   ...controls,

@@ -68,6 +68,7 @@ export default defineComponent({
     'error-upload',
     'uploaded',
     'sending',
+    'error-add',
   ],
   props: {
     ...dropzoneProps,

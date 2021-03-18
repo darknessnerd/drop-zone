@@ -85,15 +85,17 @@ export default function useItemManager({ config, context }) {
       console
         .warn(`ignored file: ${file.name} with size ~= ${(file.size / 1024 / 1024)
           .toPrecision(3)} mb`);
+      context.emit('error-add', { files: [file], error: 'MAX_FILE_SIZE' });
       return;
     }
     // Filter invalid type
     if (!isValidFile(file)) {
+      context.emit('error-add', { files: [file], error: 'INVALID_TYPE' });
       console.warn(`ignored file: ${file.name}`);
       return;
     }
     if (items.ids.length + 1 > config.maxFiles) {
-      // TODO ADD VISUAL EFFECT AND Emit some event
+      context.emit('error-add', { files: [file], error: 'MAX_FILE' });
       console.warn('Max file reached');
       return;
     }
