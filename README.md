@@ -36,7 +36,7 @@ Register the component
 import DropZone from 'dropzone-vue';
 
 // optionally import default styles
-import 'dropzone-vue/dist/dropzone-vue.common.css';
+import 'dropzone-vue/dist/dropzone-vue.umd.min.css';
 
 createApp(App)
   .use(DropZone)
@@ -216,7 +216,7 @@ Default: `1000000`
 Bytes value for the max upload size allowed, default 1mb
 
 ```html
-<Dropzone :maxFiles="600000000">
+<Dropzone :maxFileSize="600000000">
 ```
 
 #### hiddenInputContainer

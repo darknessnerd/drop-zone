@@ -94,7 +94,7 @@ export default function useItemManager({ config, context }) {
       console.warn(`ignored file: ${file.name}`);
       return;
     }
-    if (items.ids.length + 1 > config.maxFiles) {
+    if (config.maxFiles && (items.ids.length + 1 > config.maxFiles)) {
       context.emit('error-add', { files: [file], error: 'MAX_FILE' });
       console.warn('Max file reached');
       return;
