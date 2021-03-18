@@ -12,6 +12,8 @@
 
 > Vue3 Library Component for drag’n’drop file uploads with image previews.
 
+![demo](https://github.com/darknessnerd/drop-zone/blob/main/stories/assets/demo.gif?raw=true)
+
 ### :rocket: Features
 
 * No dependencies
