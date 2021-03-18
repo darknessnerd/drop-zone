@@ -1,11 +1,11 @@
-# vue3-drop-zone
+# dropzone-vue
 
 [![Build Status](https://www.travis-ci.com/darknessnerd/drop-zone.svg?branch=main)](https://www.travis-ci.com/darknessnerd/drop-zone)
-![NPM Downloads](https://img.shields.io/npm/dw/drop-zone)
-![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/drop-zone)
-![NPM License](https://img.shields.io/npm/l/drop-zone)
-![NPM Version](https://img.shields.io/npm/v/drop-zone)
-![npm collaborators](https://img.shields.io/npm/collaborators/drop-zone)
+![NPM Downloads](https://img.shields.io/npm/dw/dropzone-vue)
+![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/dropzone-vue)
+![NPM License](https://img.shields.io/npm/l/dropzone-vue)
+![NPM Version](https://img.shields.io/npm/v/dropzone-vue)
+![npm collaborators](https://img.shields.io/npm/collaborators/dropzone-vue)
 
 :bomb:<br>
 [Features Live Demo Link: Click here !! ](https://darknessnerd.github.io/drop-zone/index.html)
@@ -28,7 +28,7 @@
 ## Install and basic usage
 
 ```bash
-$ npm install --save drop-zone
+$ npm install --save dropzone-vue
 ```
 Register the component
 
@@ -36,7 +36,7 @@ Register the component
 import DropZone from 'dropzone-vue';
 
 // optionally import default styles
-import 'dropzone-vue/dist/drop-zone.common.css';
+import 'dropzone-vue/dist/dropzone-vue.common.css';
 
 createApp(App)
   .use(DropZone)
