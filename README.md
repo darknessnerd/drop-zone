@@ -36,7 +36,7 @@ Register the component
 import DropZone from 'dropzone-vue';
 
 // optionally import default styles
-import 'dropzone-vue/dist/dropzone-vue.umd.min.css';
+import 'dropzone-vue/dist/dropzone-vue.common.css';
 
 createApp(App)
   .use(DropZone)
