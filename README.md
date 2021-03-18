@@ -1,4 +1,4 @@
-# DropZone
+# vue3-drop-zone
 
 [![Build Status](https://www.travis-ci.com/darknessnerd/drop-zone.svg?branch=main)](https://www.travis-ci.com/darknessnerd/drop-zone)
 ![NPM Downloads](https://img.shields.io/npm/dw/drop-zone)
