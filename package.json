@@ -1,5 +1,5 @@
 {
-  "name": "vue3-drop-zone",
+  "name": "dropzone-vue",
   "version": "0.1.4",
   "private": false,
   "author": "Brunino Criniti <crinitib@gmail.com>",
@@ -20,8 +20,8 @@
     "file"
   ],
   "description": "Vue3 Library Component for drag’n’drop file uploads with image previews..",
-  "main": "dist/drop-zone.common.js",
-  "unpkg": "dist/drop-zone.umd.min.js",
+  "main": "dist/dropzone-vue.common.js",
+  "unpkg": "dist/dropzone-vue.umd.min.js",
   "files": [
     "dist/"
   ],

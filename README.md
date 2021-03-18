@@ -33,10 +33,10 @@ $ npm install --save drop-zone
 Register the component
 
 ```js
-import DropZone from 'drop-zone';
+import DropZone from 'dropzone-vue';
 
 // optionally import default styles
-import 'drop-zone/dist/drop-zone.common.css';
+import 'dropzone-vue/dist/drop-zone.common.css';
 
 createApp(App)
   .use(DropZone)
