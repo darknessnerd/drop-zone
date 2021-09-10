@@ -1,5 +1,5 @@
 <template>
-  <form ref="dropzone"
+  <form :ref="dropzoneRef"
         class="dropzone"
         :class="[dropzoneClassName]"
         @drop="onDrop"
@@ -72,6 +72,9 @@ export default defineComponent({
   ],
   props: {
     ...dropzoneProps,
+    dropzoneRef: {
+      default: "dropzone",
+    },
     dropzoneClassName: {
       default: 'dropzone__box',
     },
