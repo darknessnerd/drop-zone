@@ -72,7 +72,7 @@ export default function useHiddenInputFile() {
     config, dropzone, itemManager,
   }) => {
     if (config.clickable) {
-      const element = getElement('.dropzone__message', 'dropzone__message');
+      const element = getElement(`.${config.dropzoneMessageClassName}`, config.dropzoneMessageClassName);
       const elements = getAllDescendants(element);
       clickableElements = [dropzone.value];
       clickableElements.push(element);
