@@ -107,6 +107,7 @@ VueWrapper {
     "dropzoneDetailsClassName": "dropzone__details--style",
     "dropzoneItemClassName": "dropzone__item--style",
     "dropzoneMessageClassName": "dropzone__message--style",
+    "dropzoneRef": "dropzone",
     "filesize": [Function],
     "handleDragOver": [Function],
     "headers": null,
