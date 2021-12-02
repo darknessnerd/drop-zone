@@ -364,7 +364,7 @@ Parameters:
 Called when a file or files are uploaded.
 
 ```html
-<DropZone @removedFile="onFileRemove">
+<DropZone @uploaded="uploaded">
 ```
 
 #### error-upload
@@ -390,7 +390,7 @@ Parameters:
 Called when a file is going to be uploaded.
 
 ```html
-<DropZone @errorUpload="onErrorUpload">
+<DropZone @sending="sending">
 ```
 
 #### error-add
