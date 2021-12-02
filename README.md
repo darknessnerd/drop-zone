@@ -61,7 +61,7 @@ Now your component inside a code:
 
 <script>
 import { defineComponent } from 'vue';
-import { DropZone } from 'drop-zone';
+import { DropZone } from 'dropzone-vue';
 
 export default defineComponent({
   components: {
