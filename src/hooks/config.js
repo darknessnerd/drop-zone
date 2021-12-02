@@ -25,6 +25,7 @@ export default function useConfig({ props, context, setMultiple }) {
     chunking: props.chunking,
     numberOfChunks: props.numberOfChunks,
     multipleUpload: props.chunking ? false : props.multipleUpload,
+    dropzoneMessageClassName: props.dropzoneMessageClassName,
     accepts: [],
   });
   const createAcceptsArray = () => {
