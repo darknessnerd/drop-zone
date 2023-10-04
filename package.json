@@ -54,7 +54,7 @@
     "@storybook/addon-links": "^6.2.0-alpha.32",
     "@storybook/addons": "^6.2.0-alpha.32",
     "@storybook/theming": "^6.2.0-alpha.32",
-    "@storybook/vue3": "^6.4.4",
+    "@storybook/vue3": "^7.4.6",
     "@vue/cli-plugin-babel": "^4.5.11",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-unit-jest": "~4.5.0",
